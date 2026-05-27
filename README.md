@@ -97,6 +97,7 @@ Schedule/
     │   └── modules/
     │       ├── dates.js
     │       ├── i18n.js
+    │       ├── quotes.js
     │       ├── scheduleData.js
     │       ├── tasks.js
     │       └── theme.js
@@ -354,6 +355,24 @@ async / await
 Promise.all
 JSON 数据建模
 数据清洗和默认值
+```
+
+### `assets/js/modules/quotes.js`
+
+今日语录数据加载模块。
+
+主要职责：
+
+- 请求 `assets/data/quotes/today-quotes.json`
+- 校验语录数据结构
+- 返回可渲染的语录数组
+
+适合学习：
+
+```text
+fetch
+JSON 数据读取
+把独立数据源拆成独立模块
 ```
 
 ### `assets/js/modules/tasks.js`

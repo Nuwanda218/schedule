@@ -64,6 +64,10 @@ if (!exists('index.html')) {
   }
 }
 
+if (exists('assets/js/app.js') && /\bfetchJson\b/.test(read('assets/js/app.js'))) {
+  errors.push('app.js should not call fetchJson directly; use a data module instead.');
+}
+
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);

@@ -19,6 +19,7 @@ import {
   groupByDate,
   toHourValue
 } from "./modules/tasks.js";
+import { fetchQuotes } from "./modules/quotes.js";
 import { toggleSettingsPanel as toggleSettingsPanelComponent } from "./components/settingsPanel.js";
 import {
   getSeasonThemePath,
@@ -48,7 +49,6 @@ import {
   DAY_START,
   DAY_END,
   HOUR_HEIGHT,
-  QUOTES_PATH,
   MONTH_SHORT,
   MONTH_SHORT_ZH,
   LANG_NAMES
@@ -691,9 +691,11 @@ function renderTodayPanel() {
   loadTodayTasks(today)
     .then((items) => {
       renderTodayItems(items);
+      renderTodayQuote(false);
     })
     .catch(() => {
       renderTodayItems([]);
+      renderTodayQuote(false);
     });
 }
 
@@ -707,17 +709,10 @@ function renderTodayItems(items) {
   if (!tasks.length) {
     ui.todayList.hidden = true;
     ui.todayEmpty.hidden = false;
-    if (ui.todayQuoteButton) {
-      ui.todayQuoteButton.hidden = false;
-    }
-    renderTodayQuote(false);
     return;
   }
   ui.todayEmpty.hidden = true;
   ui.todayList.hidden = false;
-  if (ui.todayQuoteButton) {
-    ui.todayQuoteButton.hidden = true;
-  }
   const sorted = [...tasks].sort((a, b) => getTimeSortValue(a) - getTimeSortValue(b));
   ui.todayList.innerHTML = sorted
     .map((task) => {
@@ -776,8 +771,7 @@ function loadQuotes() {
   if (state.quotesLoaded) {
     return Promise.resolve(Array.isArray(state.quotes) ? state.quotes : []);
   }
-  return fetchJson(QUOTES_PATH).then((data) => {
-    const quotes = data && Array.isArray(data.quotes) ? data.quotes : [];
+  return fetchQuotes().then((quotes) => {
     state.quotes = quotes;
     state.quotesLoaded = true;
     return quotes;
