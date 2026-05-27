@@ -1,0 +1,29 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Space Grotesk", "IBM Plex Sans", "Trebuchet MS", sans-serif;
+  color: var(--ink);
+  background-color: var(--page-bg);
+  background-image: var(--page-pattern);
+  background-attachment: fixed;
+}
+
+body[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+.ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--ambient-bg);
+  mix-blend-mode: soft-light;
+  opacity: var(--ambient-opacity);
+  z-index: -1;
+}

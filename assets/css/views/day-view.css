@@ -1,0 +1,77 @@
+.day-grid {
+  grid-template-columns: 72px minmax(240px, 1fr);
+}
+
+.time-rail {
+  position: relative;
+  height: var(--track-height);
+  border-right: 1px dashed var(--line);
+}
+
+.time-label {
+  position: absolute;
+  left: 0;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.day-column {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 8px;
+}
+
+.day-header {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.day-track {
+  position: relative;
+  height: var(--track-height);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background-image: var(--day-track-grid);
+  background-color: var(--day-track-bg);
+  overflow: hidden;
+}
+
+.task-block {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--task-block-bg);
+  border-left: 4px solid var(--accent);
+  box-shadow: var(--task-block-shadow);
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+}
+
+.task-block.priority-med {
+  background: var(--task-block-med-bg);
+  border-left-color: var(--accent-2);
+}
+
+.task-block.priority-low {
+  background: var(--task-block-low-bg);
+  border-left-color: var(--accent-3);
+}
+
+.task-block.is-done {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.task-title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.task-time {
+  font-size: 11px;
+  color: var(--muted);
+}

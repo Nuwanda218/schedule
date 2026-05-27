@@ -1,0 +1,9 @@
+.schedule-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.week-grid {
+  grid-template-columns: 72px repeat(7, minmax(140px, 1fr));
+}

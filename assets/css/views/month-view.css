@@ -1,0 +1,87 @@
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.month-day {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  padding: 10px;
+  min-height: 110px;
+  background: var(--surface);
+  display: grid;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.month-day:hover {
+  transform: translateY(-2px);
+}
+
+.month-day.is-outside {
+  opacity: 0.5;
+}
+
+.day-number {
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.task-list {
+  display: grid;
+  gap: 6px;
+}
+
+.task-pill {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--task-pill-bg);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.task-label {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.task-pill.is-bilingual {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.task-pill .task-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.heat-0 {
+  background: var(--heat-0);
+}
+
+.heat-1 {
+  background: var(--heat-1);
+}
+
+.heat-2 {
+  background: var(--heat-2);
+}
+
+.heat-3 {
+  background: var(--heat-3);
+}
+
+.heat-4 {
+  background: var(--heat-4);
+}

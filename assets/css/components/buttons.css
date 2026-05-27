@@ -1,0 +1,31 @@
+theme-button {
+  display: block;
+}
+
+.lang-primary,
+.lang-secondary {
+  display: block;
+}
+
+.lang-secondary {
+  font-size: 0.72em;
+  color: var(--muted);
+  line-height: 1.1;
+  font-weight: 500;
+}
+
+.view-btn,
+.chip,
+.btn,
+.icon-btn,
+.badge,
+.legend-item {
+  text-align: center;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 32px);
+  padding: 12px clamp(24px, 4vw, 56px) 48px;
+}

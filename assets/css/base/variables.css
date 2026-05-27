@@ -1,0 +1,13 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+:root {
+  color-scheme: light;
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  --hour-height: 56px;
+  --start-hour: 6;
+  --track-height: 896px;
+  --heatmap-cell: 16px;
+  --heatmap-gap: 5px;
+}
