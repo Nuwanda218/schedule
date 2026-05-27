@@ -1,0 +1,141 @@
+/* Theme: Winter Snow (light mode) - White & Light Blue */
+body[data-theme="light"] {
+  /* Base palette - White with cool undertones */
+  --paper: #fafcff; /* Slightly cool white background */
+  --paper-2: #f5f9ff; /* Very light blue tint */
+  --paper-3: #f0f6ff; /* Subtle light blue layer */
+  --surface: #ffffff; /* Pure white cards and panels */
+  --surface-rgb: 255, 255, 255; /* Surface rgb */
+  --ink: #1e2a5e; /* Deep blue-gray for text (softer than before) */
+  --ink-rgb: 30, 42, 94; /* Primary text rgb */
+  --muted: #6c7ba0; /* Muted blue-gray for secondary text */
+  --muted-rgb: 108, 123, 160; /* Secondary text rgb */
+  --line: #e1e8f2; /* Light gray-blue borders */
+  --accent: #4a6fd8; /* Bright cool blue accent */
+  --accent-rgb: 74, 111, 216; /* Primary accent rgb */
+  --accent-2: #6c8ae6; /* Lighter blue for secondary accents */
+  --accent-2-rgb: 108, 138, 230; /* Secondary accent rgb */
+  --accent-3: #8aa4f0; /* Soft blue for tertiary accents */
+  --accent-3-rgb: 138, 164, 240; /* Tertiary accent rgb */
+  --danger-bg: #ff6b6b; /* Coral-red danger (bright for contrast) */
+  --text-on-accent: #ffffff; /* Text on accent */
+  --text-on-accent-muted: rgba(255, 255, 255, 0.85); /* Secondary text on accent */
+  --text-on-danger: #ffffff; /* Text on danger */
+
+  /* Background + ambient - Very subtle */
+  --page-bg: var(--paper); /* Body background */
+  --page-pattern: repeating-linear-gradient(135deg, rgba(var(--ink-rgb), 0.03) 0, rgba(var(--ink-rgb), 0.03) 1px, transparent 1px, transparent 16px); /* Very subtle diagonal lines */
+  --ambient-bg: radial-gradient(circle at top right, rgba(var(--accent-rgb), 0.08), transparent 60%),
+    radial-gradient(circle at 10% 20%, rgba(var(--accent-3-rgb), 0.05), transparent 45%),
+    radial-gradient(circle at 90% 80%, rgba(var(--accent-2-rgb), 0.04), transparent 55%); /* Very light ambient overlay */
+  --ambient-opacity: 0.4; /* Reduced ambient overlay strength */
+
+  /* Surfaces - Mostly white with slight transparency */
+  --panel-bg: rgba(var(--surface-rgb), 0.94); /* Almost white panels */
+  --settings-panel-bg: rgba(var(--surface-rgb), 0.98); /* Near white settings */
+  --control-bg: rgba(var(--surface-rgb), 0.94); /* Language and season toggles */
+  --view-switch-bg: rgba(var(--surface-rgb), 0.85); /* View switch capsule */
+  --range-controls-bg: rgba(var(--surface-rgb), 0.9); /* Range controls bar */
+  --legend-bg: rgba(var(--surface-rgb), 0.85); /* Legend chips */
+  --switch-bg: rgba(var(--surface-rgb), 0.85); /* Year view toggle */
+  --ghost-bg: rgba(var(--surface-rgb), 0.75); /* Ghost buttons */
+  --field-bg: rgba(var(--surface-rgb), 0.95); /* Form fields */
+  --modal-overlay: rgba(var(--ink-rgb), 0.2); /* Lighter modal overlay */
+
+  /* Shadows - Softer and lighter */
+  --shadow: 0 12px 32px rgba(var(--ink-rgb), 0.08); /* Softer panel shadow */
+  --view-btn-active-shadow: 0 6px 16px rgba(var(--accent-rgb), 0.15); /* Subtle view tab shadow */
+  --btn-primary-shadow: 0 8px 20px rgba(var(--accent-rgb), 0.2); /* Light primary button shadow */
+  --year-toggle-active-shadow: 0 6px 14px rgba(var(--accent-2-rgb), 0.15); /* Light year toggle shadow */
+
+  /* Badges + progress */
+  --badge-bg: rgba(var(--accent-2-rgb), 0.12); /* Very light badge background */
+  --badge-text: var(--accent-2); /* Badge text */
+  --progress-ring-bg: rgba(var(--accent-rgb), 0.08); /* Very light progress ring base */
+  --progress-ring-inner-bg: var(--surface); /* Progress ring inner */
+  --progress-ring-track: rgba(var(--accent-rgb), 0.15); /* Progress ring remainder */
+  --progress-bar-track-bg: rgba(var(--ink-rgb), 0.08); /* Light progress bar track */
+  --progress-bar-fill-bg: var(--accent); /* Progress bar fill */
+
+  /* Heatmap - Light blue tones */
+  --heatmap-empty: rgba(var(--ink-rgb), 0.03); /* Very light empty cell */
+  --heatmap-border: rgba(var(--ink-rgb), 0.08); /* Light cell border */
+  --heatmap-weekend: #5a6dc2; /* Weekend labels */
+  --heatmap-today: var(--accent); /* Today outline */
+  --heatmap-holiday-day: #b45802; /* Holiday day outline */
+  --event-plan-1: rgba(109, 209, 189, 0.9); /* Warm orange for plan level 1 (contrast) */
+  --event-plan-2: rgba(var(--accent-3-rgb), 0.8); /* Plan level 2 */
+  --event-plan-3: rgba(var(--accent-rgb), 0.8); /* Plan level 3 */
+  --event-holiday: rgba(var(--accent-rgb), 0.85); /* Holiday range */
+  --event-adjustment: rgba(var(--accent-2-rgb), 0.7); /* Adjustment days */
+
+  /* Heatmap intensity - Very light blue gradient */
+  --heat-0: #f5f9ff; /* Almost white */
+  --heat-1: #e6eeff; /* Very light blue */
+  --heat-2: #d4e0ff; /* Light blue */
+  --heat-3: #b8ccff; /* Medium light blue */
+  --heat-4: #9db5ff; /* Light-medium blue */
+
+  /* Priority + pills */
+  --priority-high-border: rgba(var(--accent-rgb), 0.4); /* Priority high */
+  --priority-med-border: rgba(var(--accent-2-rgb), 0.4); /* Priority med */
+  --priority-low-border: rgba(var(--accent-3-rgb), 0.5); /* Priority low */
+  --month-bars-bg: linear-gradient(90deg, rgba(var(--accent-2-rgb), 0.7), rgba(var(--accent-rgb), 0.7)); /* Month bars */
+  --month-pill-plan-bg: rgba(var(--accent-2-rgb), 0.1); /* Very light plan pill bg */
+  --month-pill-holiday-bg: rgba(var(--accent-rgb), 0.12); /* Light holiday pill bg */
+  --month-pill-holiday-border: rgba(var(--accent-rgb), 0.25); /* Light holiday pill border */
+  --month-pill-holiday-strong-bg: rgba(var(--accent-rgb), 0.18); /* Statutory holiday bg */
+  --month-pill-holiday-strong-border: rgba(var(--accent-rgb), 0.45); /* Statutory holiday border */
+  --month-pill-adjustment-bg: rgba(var(--muted-rgb), 0.1); /* Adjustment pill bg */
+  --month-pill-adjustment-border: rgba(var(--muted-rgb), 0.25); /* Adjustment pill border */
+  --month-pill-empty-bg: rgba(var(--surface-rgb), 0.8); /* Empty pill bg */
+  --task-pill-bg: rgba(var(--accent-rgb), 0.08); /* Very light task pill bg */
+  --day-track-grid: repeating-linear-gradient(to bottom, rgba(var(--ink-rgb), 0.05), rgba(var(--ink-rgb), 0.05) 1px, transparent 1px, transparent var(--hour-height)); /* Very light grid lines */
+  --day-track-bg: rgba(var(--surface-rgb), 0.9); /* Day track bg */
+  --task-block-bg: rgba(var(--accent-rgb), 0.12); /* Very light task block bg */
+  --task-block-med-bg: rgba(var(--accent-2-rgb), 0.12); /* Task block med bg */
+  --task-block-low-bg: rgba(var(--accent-3-rgb), 0.15); /* Task block low bg */
+  --task-block-shadow: 0 6px 12px rgba(var(--ink-rgb), 0.08); /* Light task block shadow */
+  --tooltip-shadow: 0 8px 20px rgba(var(--ink-rgb), 0.12); /* Light heatmap tooltip shadow */
+
+  /* Season swatches - Brighter, cleaner colors */
+  --season-swatch-spring: #4caf50; /* Spring swatch */
+  --season-swatch-spring-rgb: 76, 175, 80; /* Spring swatch rgb */
+  --season-swatch-summer: #0288d1; /* Summer swatch */
+  --season-swatch-summer-rgb: 2, 136, 209; /* Summer swatch rgb */
+  --season-swatch-autumn: #d35400; /* Autumn swatch */
+  --season-swatch-autumn-rgb: 211, 84, 0; /* Autumn swatch rgb */
+  --season-swatch-winter: #4a6fd8; /* Winter swatch (matches accent) */
+  --season-swatch-winter-rgb: 74, 111, 216; /* Winter swatch rgb */
+
+  /* Season option pills - Lighter backgrounds */
+  --season-option-spring-bg: rgba(var(--season-swatch-spring-rgb), 0.1); /* Spring toggle bg */
+  --season-option-spring-border: rgba(var(--season-swatch-spring-rgb), 0.25); /* Spring toggle border */
+  --season-option-spring-shadow: 0 8px 18px rgba(var(--season-swatch-spring-rgb), 0.25); /* Spring toggle shadow */
+  --season-option-summer-bg: rgba(var(--season-swatch-summer-rgb), 0.1); /* Summer toggle bg */
+  --season-option-summer-border: rgba(var(--season-swatch-summer-rgb), 0.25); /* Summer toggle border */
+  --season-option-summer-shadow: 0 8px 18px rgba(var(--season-swatch-summer-rgb), 0.25); /* Summer toggle shadow */
+  --season-option-autumn-bg: rgba(var(--season-swatch-autumn-rgb), 0.1); /* Autumn toggle bg */
+  --season-option-autumn-border: rgba(var(--season-swatch-autumn-rgb), 0.25); /* Autumn toggle border */
+  --season-option-autumn-shadow: 0 8px 18px rgba(var(--season-swatch-autumn-rgb), 0.25); /* Autumn toggle shadow */
+  --season-option-winter-bg: rgba(var(--season-swatch-winter-rgb), 0.1); /* Winter toggle bg */
+  --season-option-winter-border: rgba(var(--season-swatch-winter-rgb), 0.25); /* Winter toggle border */
+  --season-option-winter-shadow: 0 8px 18px rgba(var(--season-swatch-winter-rgb), 0.25); /* Winter toggle shadow */
+
+  /* Theme toggle widget - Adjusted for white theme */
+  --toggle-tap-highlight: rgba(0, 0, 0, 0); /* Remove tap highlight */
+  --toggle-day-sky: #a8d1ff; /* Light blue sky */
+  --toggle-night-sky: #2a3258; /* Dark blue night sky */
+  --toggle-sun-bg: #ffc323; /* Toggle sun */
+  --toggle-sun-glow: #ffe650; /* Toggle sun glow */
+  --toggle-moon-bg: #d8deed; /* Light moon button */
+  --toggle-moon-glow: #f0f5ff; /* Moon glow */
+  --toggle-moon-surface: #b8c2da; /* Moon surface */
+  --toggle-shadow-strong: rgba(0, 0, 0, 0.3); /* Lighter shadow strong */
+  --toggle-shadow-soft: rgba(0, 0, 0, 0.15); /* Lighter shadow soft */
+  --toggle-day-glow-1: rgba(255, 255, 255, 0.3); /* Day glow 1 */
+  --toggle-day-glow-2: rgba(255, 255, 255, 0.15); /* Day glow 2 */
+  --toggle-day-glow-3: rgba(255, 255, 255, 0.08); /* Day glow 3 */
+  --toggle-cloud: #ffffff; /* White cloud */
+  --toggle-star: #ffffff; /* White star */
+}

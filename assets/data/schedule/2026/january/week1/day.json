@@ -1,0 +1,57 @@
+{
+  "_comment": [
+    "Day-level data used by Day view (time blocks).",
+    "Only items under the matching date are rendered.",
+    "Each item needs start + end to show in the timeline."
+  ],
+  "_template": {
+    "day": {
+      "date": "2026-01-02",
+      "items": [
+        {
+          "id": "day-item-id",
+          "title": "Title",
+          "titleAlt": "Secondary language label",
+          "start": "09:00",
+          "end": "10:00",
+          "priority": "med",
+          "tag": "studio",
+          "notes": "",
+          "completed": false
+        }
+      ]
+    }
+  },
+  "year": 2026,
+  "month": 1,
+  "week": 1,
+  "days": [
+    {
+      "date": "2026-01-02",
+      "items": [
+        {
+          "id": "day-1",
+          "title": "Reading + notes",
+          "titleAlt": "Secondary language label",
+          "start": "10:00",
+          "end": "11:30",
+          "priority": "high",
+          "tag": "learning",
+          "notes": "Unit 3",
+          "completed": false
+        },
+        {
+          "id": "day-2",
+          "title": "Workout",
+          "titleAlt": "Secondary language label",
+          "start": "18:00",
+          "end": "19:00",
+          "priority": "low",
+          "tag": "health",
+          "notes": "",
+          "completed": false
+        }
+      ]
+    }
+  ]
+}

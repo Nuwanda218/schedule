@@ -1,0 +1,50 @@
+{
+  "_comment": [
+    "Week-level data used by Week view (time blocks).",
+    "Each item must have date + start + end to render on the timeline.",
+    "priority: high|med|low; tag: studio|admin|health|learning|travel."
+  ],
+  "_template": {
+    "item": {
+      "id": "week-item-id",
+      "date": "2026-01-02",
+      "title": "Title",
+      "titleAlt": "Secondary language label",
+      "start": "09:00",
+      "end": "10:00",
+      "priority": "med",
+      "tag": "studio",
+      "notes": "",
+      "completed": false
+    }
+  },
+  "year": 2026,
+  "month": 1,
+  "week": 1,
+  "items": [
+    {
+      "id": "week-1",
+      "date": "2026-01-02",
+      "title": "Weekly planning",
+      "titleAlt": "Secondary language label",
+      "start": "09:00",
+      "end": "10:00",
+      "priority": "high",
+      "tag": "studio",
+      "notes": "Optional note",
+      "completed": false
+    },
+    {
+      "id": "week-2",
+      "date": "2026-01-03",
+      "title": "Grammar practice",
+      "titleAlt": "Secondary language label",
+      "start": "19:00",
+      "end": "20:00",
+      "priority": "med",
+      "tag": "learning",
+      "notes": "",
+      "completed": false
+    }
+  ]
+}

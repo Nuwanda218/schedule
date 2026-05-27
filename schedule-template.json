@@ -1,0 +1,26 @@
+{
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Study session",
+      "date": "2026-01-21",
+      "start": "09:00",
+      "end": "11:00",
+      "priority": "med",
+      "tag": "learning",
+      "notes": "Grammar + vocab",
+      "completed": false
+    },
+    {
+      "id": "task-2",
+      "title": "Project focus",
+      "date": "2026-01-22",
+      "start": "14:00",
+      "end": "17:00",
+      "priority": "high",
+      "tag": "studio",
+      "notes": "Deep work block",
+      "completed": false
+    }
+  ]
+}

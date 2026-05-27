@@ -1,0 +1,45 @@
+{
+  "_comment": [
+    "Month-level data used by Month view (calendar grid).",
+    "Each item shows on its date. start/end are optional in month view.",
+    "priority: high|med|low; tag: studio|admin|health|learning|travel.",
+    "completed is used by filters."
+  ],
+  "_template": {
+    "item": {
+      "id": "month-item-id",
+      "date": "2026-01-01",
+      "title": "Title",
+      "titleAlt": "Secondary language label",
+      "priority": "med",
+      "tag": "studio",
+      "notes": "",
+      "completed": false
+    }
+  },
+  "year": 2026,
+  "month": 1,
+  "title": "January",
+  "items": [
+    {
+      "id": "month-1",
+      "date": "2026-01-05",
+      "title": "Monthly theme: vocabulary",
+      "titleAlt": "Secondary language label",
+      "priority": "med",
+      "tag": "learning",
+      "notes": "Optional note",
+      "completed": false
+    },
+    {
+      "id": "month-2",
+      "date": "2026-01-18",
+      "title": "Review goals",
+      "titleAlt": "Secondary language label",
+      "priority": "low",
+      "tag": "admin",
+      "notes": "",
+      "completed": false
+    }
+  ]
+}

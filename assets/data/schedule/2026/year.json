@@ -1,0 +1,203 @@
+{
+  "_comment": [
+    "Year-level data for the Year view + heatmap.",
+    "Fields used by UI: year, title, plans, holidays.",
+    "Plans: use months OR startMonth/endMonth OR startDate/endDate. startDate/endDate is best for precise ranges.",
+    "If you keep startDay/endDay for readability, also keep startDate/endDate in sync.",
+    "Holidays in the cards use holiday.date; use holiday.startDate/endDate to mark the full holiday range.",
+    "holiday.date is highlighted in the heatmap as the main holiday day.",
+    "For workday make-ups, set holiday.type to adjustment (shows in a different color)."
+  ],
+  "_template": {
+    "plan": {
+      "id": "plan-id",
+      "title": "Plan title",
+      "titleAlt": "Secondary language label",
+      "months": [1, 2, 3],
+      "startMonth": 1,
+      "endMonth": 3,
+      "startDate": "2026-01-01",
+      "endDate": "2026-01-10",
+      "notes": "Optional note",
+      "type": "plan",
+      "color": "var(--event-plan-1)"
+    },
+    "holiday": {
+      "id": "holiday-id",
+      "date": "2026-01-01",
+      "startDate": "2026-01-01",
+      "endDate": "2026-01-03",
+      "name": "Holiday name",
+      "nameAlt": "Secondary language label",
+      "type": "statutory",
+      "color": "var(--event-holiday)"
+    }
+  },
+  "year": 2026,
+  "title": "2026 Year Plan",
+  "plans": [
+    {
+      "id": "plan-1",
+      "title": "寒假",
+      "startMonth": 1,
+      "startDay": 15,
+      "endMonth": 2,
+      "endDay": 28,
+      "startDate": "2026-01-28",
+      "endDate": "2026-02-28",
+      "notes": "计划旅行和休息",
+      "color": "var(--event-plan-2)"
+    },
+    {
+      "id": "plan-2",
+      "title": "春运返校",
+      "startMonth": 2,
+      "startDay": 28,
+      "endMonth": 3,
+      "endDay": 1,
+      "startDate": "2026-02-28",
+      "endDate": "2026-03-01",
+      "notes": "返校途中注意安全"
+    },
+    {
+      "id": "plan-3",
+      "title": "国旗护卫队冬训",
+      "startMonth": 3,
+      "startDay": 1,
+      "endMonth": 3,
+      "endDay": 7,
+      "startDate": "2026-03-01",
+      "endDate": "2026-03-07",
+      "notes": "参加国旗护卫队冬训"
+    },
+    {
+      "id": "plan-4",
+      "title": "春季学期",
+      "startMonth": 3,
+      "startDay": 9,
+      "endMonth": 7,
+      "endDay": 11,
+      "startDate": "2026-03-09",
+      "endDate": "2026-07-11",
+      "notes": "学期内周末双休"
+    },
+    {
+      "id": "plan-5",
+      "title": "暑假",
+      "startMonth": 7,
+      "startDay": 11,
+      "endMonth": 8,
+      "endDay": 22,
+      "startDate": "2026-07-11",
+      "endDate": "2026-08-22",
+      "notes": "计划长途骑行",
+      "color": "var(--event-plan-2)"
+    }
+  ],
+  "holidays": [
+    {
+      "id": "holiday-1",
+      "name": "元旦",
+      "type": "statutory",
+      "date": "2026-01-01",
+      "startDate": "2026-01-01",
+      "endDate": "2026-01-03"
+    },
+    {
+      "id": "adjustment-1",
+      "name": "元旦调休补班",
+      "type": "adjustment",
+      "date": "2026-01-04",
+      "startDate": "2026-01-04",
+      "endDate": "2026-01-04"
+    },
+    {
+      "id": "holiday-2",
+      "name": "春节",
+      "type": "statutory",
+      "date": "2026-02-16",
+      "startDate": "2026-02-15",
+      "endDate": "2026-02-23"
+    },
+    {
+      "id": "adjustment-2",
+      "name": "春节调休补班",
+      "type": "adjustment",
+      "date": "2026-02-14",
+      "startDate": "2026-02-14",
+      "endDate": "2026-02-14"
+    },
+    {
+      "id": "adjustment-3",
+      "name": "春节调休补班",
+      "type": "adjustment",
+      "date": "2026-02-28",
+      "startDate": "2026-02-28",
+      "endDate": "2026-02-28"
+    },
+    {
+      "id": "holiday-3",
+      "name": "清明节",
+      "type": "statutory",
+      "date": "2026-04-04",
+      "startDate": "2026-04-04",
+      "endDate": "2026-04-06"
+    },
+    {
+      "id": "holiday-4",
+      "name": "劳动节",
+      "type": "statutory",
+      "date": "2026-05-01",
+      "startDate": "2026-05-01",
+      "endDate": "2026-05-05"
+    },
+    {
+      "id": "adjustment-4",
+      "name": "劳动节调休补班",
+      "type": "adjustment",
+      "date": "2026-05-09",
+      "startDate": "2026-05-09",
+      "endDate": "2026-05-09"
+    },
+    {
+      "id": "holiday-5",
+      "name": "端午节",
+      "type": "statutory",
+      "date": "2026-06-19",
+      "startDate": "2026-06-19",
+      "endDate": "2026-06-21"
+    },
+    {
+      "id": "holiday-6",
+      "name": "中秋节",
+      "type": "statutory",
+      "date": "2026-09-25",
+      "startDate": "2026-09-25",
+      "endDate": "2026-09-27"
+    },
+    {
+      "id": "adjustment-5",
+      "name": "国庆节调休补班",
+      "type": "adjustment",
+      "date": "2026-09-20",
+      "startDate": "2026-09-20",
+      "endDate": "2026-09-20"
+    },
+    {
+      "id": "holiday-7",
+      "name": "国庆节",
+      "type": "statutory",
+      "date": "2026-10-01",
+      "startDate": "2026-10-01",
+      "endDate": "2026-10-07"
+    },
+    {
+      "id": "adjustment-6",
+      "name": "国庆节调休补班",
+      "type": "adjustment",
+      "date": "2026-10-10",
+      "startDate": "2026-10-10",
+      "endDate": "2026-10-10"
+    }
+  ]
+}

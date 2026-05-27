@@ -1,0 +1,141 @@
+/* Theme: Summer (dark mode) - Enhanced */
+body[data-theme="dark"] {
+  /* Base palette */
+  --paper: #0d1618; /* Page background base */
+  --paper-2: #132023; /* Ambient layer */
+  --paper-3: #172a2e; /* Ambient layer alt */
+  --surface: #121d20; /* Cards and panels */
+  --surface-rgb: 18, 29, 32; /* Surface rgb */
+  --ink: #e6f7fc; /* Primary text */
+  --ink-rgb: 230, 247, 252; /* Primary text rgb */
+  --muted: #a8d0e0; /* Secondary text */
+  --muted-rgb: 168, 208, 224; /* Secondary text rgb */
+  --line: #24363a; /* Borders and dividers */
+  --accent: #29b6f6; /* Primary accent */
+  --accent-rgb: 41, 182, 246; /* Primary accent rgb */
+  --accent-2: #3aa89b; /* Secondary accent */
+  --accent-2-rgb: 58, 168, 155; /* Secondary accent rgb */
+  --accent-3: #81d4fa; /* Tertiary accent */
+  --accent-3-rgb: 129, 212, 250; /* Tertiary accent rgb */
+  --danger-bg: #e45745; /* Danger button */
+  --text-on-accent: #ffffff; /* Text on accent */
+  --text-on-accent-muted: rgba(255, 255, 255, 0.7); /* Secondary text on accent */
+  --text-on-danger: #ffffff; /* Text on danger */
+
+  /* Background + ambient */
+  --page-bg: var(--paper); /* Body background */
+  --page-pattern: repeating-linear-gradient(135deg, rgba(var(--ink-rgb), 0.04) 0, rgba(var(--ink-rgb), 0.04) 1px, transparent 1px, transparent 12px); /* Page pattern (diagonal lines) */
+  --ambient-bg: radial-gradient(circle at top right, rgba(41, 182, 246, 0.25), transparent 55%),
+    radial-gradient(circle at 20% 20%, rgba(58, 168, 155, 0.2), transparent 50%),
+    linear-gradient(135deg, #0b1315 0%, #101a1d 45%, #121d20 100%); /* Ambient overlay */
+  --ambient-opacity: 0.9; /* Ambient overlay strength */
+
+  /* Surfaces */
+  --panel-bg: rgba(var(--surface-rgb), 0.9); /* Panels and cards */
+  --settings-panel-bg: rgba(var(--surface-rgb), 0.95); /* Settings popover */
+  --control-bg: rgba(var(--surface-rgb), 0.9); /* Language and season toggles */
+  --view-switch-bg: rgba(var(--surface-rgb), 0.65); /* View switch capsule */
+  --range-controls-bg: rgba(var(--surface-rgb), 0.75); /* Range controls bar */
+  --legend-bg: rgba(var(--surface-rgb), 0.65); /* Legend chips */
+  --switch-bg: rgba(var(--surface-rgb), 0.65); /* Year view toggle */
+  --ghost-bg: rgba(var(--surface-rgb), 0.4); /* Ghost buttons */
+  --field-bg: rgba(var(--surface-rgb), 0.85); /* Form fields */
+  --modal-overlay: rgba(0, 0, 0, 0.7); /* Modal overlay */
+
+  /* Shadows */
+  --shadow: 0 18px 40px rgba(4, 12, 14, 0.6); /* Panel shadow */
+  --view-btn-active-shadow: 0 10px 20px rgba(var(--accent-rgb), 0.35); /* View tab shadow */
+  --btn-primary-shadow: 0 12px 24px rgba(var(--accent-rgb), 0.35); /* Primary button shadow */
+  --year-toggle-active-shadow: 0 8px 18px rgba(var(--accent-2-rgb), 0.35); /* Year toggle shadow */
+
+  /* Badges + progress */
+  --badge-bg: rgba(var(--accent-2-rgb), 0.25); /* Badge background */
+  --badge-text: var(--accent-2); /* Badge text */
+  --progress-ring-bg: rgba(var(--accent-rgb), 0.2); /* Progress ring base */
+  --progress-ring-inner-bg: var(--surface); /* Progress ring inner */
+  --progress-ring-track: rgba(var(--accent-rgb), 0.3); /* Progress ring remainder */
+  --progress-bar-track-bg: rgba(var(--ink-rgb), 0.12); /* Progress bar track */
+  --progress-bar-fill-bg: var(--accent); /* Progress bar fill */
+
+  /* Heatmap */
+  --heatmap-empty: rgba(255, 255, 255, 0.1); /* Heatmap empty cell */
+  --heatmap-border: rgba(255, 255, 255, 0.15); /* Heatmap cell border */
+  --heatmap-weekend: #81d4fa; /* Weekend labels */
+  --heatmap-today: var(--ink); /* Today outline */
+  --heatmap-holiday-day: #3c42db; /* 节假日当天外框 - 使用橙色 */
+  --event-plan-1: rgba(58, 168, 155, 0.8); /* Plan level 1 - 青绿色 */
+  --event-plan-2: rgba(var(--accent-3-rgb), 0.8); /* Plan level 2 - 浅蓝色 */
+  --event-plan-3: rgba(var(--accent-rgb), 0.8); /* Plan level 3 - 亮蓝色 */
+  --event-holiday: rgba(242, 140, 60, 0.9); /* Holiday range - 橙色（寒暑假）*/
+  --event-adjustment: rgba(168, 208, 224, 0.65); /* Adjustment days */
+
+  /* Heatmap intensity */
+  --heat-0: #132023; /* Heatmap level 0 */
+  --heat-1: #1d3237; /* Heatmap level 1 */
+  --heat-2: #27444b; /* Heatmap level 2 */
+  --heat-3: #31565f; /* Heatmap level 3 */
+  --heat-4: #3b6873; /* Heatmap level 4 */
+
+  /* Priority + pills */
+  --priority-high-border: rgba(var(--accent-rgb), 0.6); /* Priority high */
+  --priority-med-border: rgba(var(--accent-2-rgb), 0.6); /* Priority med */
+  --priority-low-border: rgba(var(--accent-3-rgb), 0.7); /* Priority low */
+  --month-bars-bg: linear-gradient(90deg, rgba(var(--accent-2-rgb), 0.7), rgba(var(--accent-rgb), 0.7)); /* Month bars */
+  --month-pill-plan-bg: rgba(var(--accent-2-rgb), 0.18); /* Plan pill bg */
+  --month-pill-holiday-bg: rgba(242, 140, 60, 0.25); /* 寒暑假标签背景 - 橙色 */
+  --month-pill-holiday-border: rgba(242, 140, 60, 0.5); /* 寒暑假标签边框 */
+  --month-pill-holiday-strong-bg: rgba(41, 182, 246, 0.3); /* 法定节假日标签背景 - 亮蓝色 */
+  --month-pill-holiday-strong-border: rgba(41, 182, 246, 0.7); /* 法定节假日标签边框 */
+  --month-pill-adjustment-bg: rgba(var(--muted-rgb), 0.18); /* Adjustment pill bg */
+  --month-pill-adjustment-border: rgba(var(--muted-rgb), 0.4); /* Adjustment pill border */
+  --month-pill-empty-bg: rgba(var(--surface-rgb), 0.5); /* Empty pill bg */
+  --task-pill-bg: rgba(var(--accent-rgb), 0.18); /* Task pill bg */
+  --day-track-grid: repeating-linear-gradient(to bottom, rgba(var(--ink-rgb), 0.08), rgba(var(--ink-rgb), 0.08) 1px, transparent 1px, transparent var(--hour-height)); /* Day grid lines */
+  --day-track-bg: rgba(var(--surface-rgb), 0.75); /* Day track bg */
+  --task-block-bg: rgba(242, 140, 60, 0.25); /* 寒暑假任务块 - 橙色 */
+  --task-block-med-bg: rgba(var(--accent-2-rgb), 0.22); /* Task block med bg */
+  --task-block-low-bg: rgba(var(--accent-3-rgb), 0.24); /* Task block low bg */
+  --task-block-shadow: 0 8px 16px rgba(0, 0, 0, 0.45); /* Task block shadow */
+  --tooltip-shadow: 0 12px 24px rgba(0, 0, 0, 0.5); /* Heatmap tooltip shadow */
+
+  /* Season swatches */
+  --season-swatch-spring: #4caf50; /* Spring swatch */
+  --season-swatch-spring-rgb: 76, 175, 80; /* Spring swatch rgb */
+  --season-swatch-summer: #0288d1; /* Summer swatch */
+  --season-swatch-summer-rgb: 2, 136, 209; /* Summer swatch rgb */
+  --season-swatch-autumn: #d35400; /* Autumn swatch */
+  --season-swatch-autumn-rgb: 211, 84, 0; /* Autumn swatch rgb */
+  --season-swatch-winter: #3949ab; /* Winter swatch */
+  --season-swatch-winter-rgb: 57, 73, 171; /* Winter swatch rgb */
+
+  /* Season option pills */
+  --season-option-spring-bg: rgba(var(--season-swatch-spring-rgb), 0.12); /* Spring toggle bg */
+  --season-option-spring-border: rgba(var(--season-swatch-spring-rgb), 0.35); /* Spring toggle border */
+  --season-option-spring-shadow: 0 10px 22px rgba(var(--season-swatch-spring-rgb), 0.35); /* Spring toggle shadow */
+  --season-option-summer-bg: rgba(var(--season-swatch-summer-rgb), 0.12); /* Summer toggle bg */
+  --season-option-summer-border: rgba(var(--season-swatch-summer-rgb), 0.35); /* Summer toggle border */
+  --season-option-summer-shadow: 0 10px 22px rgba(var(--season-swatch-summer-rgb), 0.35); /* Summer toggle shadow */
+  --season-option-autumn-bg: rgba(var(--season-swatch-autumn-rgb), 0.12); /* Autumn toggle bg */
+  --season-option-autumn-border: rgba(var(--season-swatch-autumn-rgb), 0.35); /* Autumn toggle border */
+  --season-option-autumn-shadow: 0 10px 22px rgba(var(--season-swatch-autumn-rgb), 0.35); /* Autumn toggle shadow */
+  --season-option-winter-bg: rgba(var(--season-swatch-winter-rgb), 0.12); /* Winter toggle bg */
+  --season-option-winter-border: rgba(var(--season-swatch-winter-rgb), 0.35); /* Winter toggle border */
+  --season-option-winter-shadow: 0 10px 22px rgba(var(--season-swatch-winter-rgb), 0.35); /* Winter toggle shadow */
+
+  /* Theme toggle widget */
+  --toggle-tap-highlight: rgba(0, 0, 0, 0); /* Remove tap highlight */
+  --toggle-day-sky: #4685c0; /* Toggle day sky */
+  --toggle-night-sky: #191e32; /* Toggle night sky */
+  --toggle-sun-bg: #ffc323; /* Toggle sun */
+  --toggle-sun-glow: #ffe650; /* Toggle sun glow */
+  --toggle-moon-bg: #c3c8d2; /* Toggle moon button */
+  --toggle-moon-glow: #ffffd2; /* Toggle moon glow */
+  --toggle-moon-surface: #96a0b4; /* Toggle moon surface */
+  --toggle-shadow-strong: rgba(0, 0, 0, 0.5); /* Toggle shadow strong */
+  --toggle-shadow-soft: rgba(0, 0, 0, 0.3); /* Toggle shadow soft */
+  --toggle-day-glow-1: rgba(255, 255, 255, 0.2); /* Toggle day glow 1 */
+  --toggle-day-glow-2: rgba(255, 255, 255, 0.1); /* Toggle day glow 2 */
+  --toggle-day-glow-3: rgba(255, 255, 255, 0.05); /* Toggle day glow 3 */
+  --toggle-cloud: #ffffff; /* Toggle cloud */
+  --toggle-star: #ffffff; /* Toggle star */
+}

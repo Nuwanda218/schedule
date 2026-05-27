@@ -1,0 +1,147 @@
+/* Theme: Joyful Dopamine (light mode) - High Saturation, Vibrant Colors */
+body[data-theme="light"] {
+  /* Base palette - Vibrant and saturated colors */
+  --paper: #fef6ff; /* Very light pink-purple base */
+  --paper-2: #f9f0ff; /* Light purple tint */
+  --paper-3: #f4eaff; /* Slightly deeper purple */
+  --surface: #ffffff; /* Pure white surfaces */
+  --surface-rgb: 255, 255, 255; /* Surface rgb */
+  --ink: #2d1b69; /* Deep violet for text (high contrast) */
+  --ink-rgb: 45, 27, 105; /* Primary text rgb */
+  --muted: #7e5bef; /* Bright purple for secondary text */
+  --muted-rgb: 126, 91, 239; /* Secondary text rgb */
+  --line: #d0b3ff; /* Light purple border */
+  --accent: #ff4081; /* Vibrant magenta-pink (primary accent) */
+  --accent-rgb: 255, 64, 129; /* Primary accent rgb */
+  --accent-2: #7c4dff; /* Bright violet */
+  --accent-2-rgb: 124, 77, 255; /* Secondary accent rgb */
+  --accent-3: #00e5ff; /* Electric cyan */
+  --accent-3-rgb: 0, 229, 255; /* Tertiary accent rgb */
+  --danger-bg: #ff5252; /* Bright red danger */
+  --text-on-accent: #ffffff; /* White text on accent */
+  --text-on-accent-muted: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
+  --text-on-danger: #ffffff; /* White text on danger */
+
+  /* Background + ambient - Colorful gradients */
+  --page-bg: var(--paper); /* Body background */
+  --page-pattern: repeating-linear-gradient(45deg, rgba(var(--accent-rgb), 0.08) 0, rgba(var(--accent-rgb), 0.08) 2px, transparent 2px, transparent 20px),
+                  repeating-linear-gradient(135deg, rgba(var(--accent-2-rgb), 0.06) 0, rgba(var(--accent-2-rgb), 0.06) 2px, transparent 2px, transparent 18px); /* Colorful diagonal grid */
+  --ambient-bg: radial-gradient(circle at 10% 20%, rgba(var(--accent-rgb), 0.25), transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(var(--accent-2-rgb), 0.2), transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(var(--accent-3-rgb), 0.15), transparent 60%); /* Multi-color ambient overlay */
+  --ambient-opacity: 0.7; /* Strong ambient overlay */
+
+  /* Surfaces - White with colorful tints */
+  --panel-bg: rgba(var(--surface-rgb), 0.92); /* Slightly transparent white */
+  --settings-panel-bg: rgba(var(--surface-rgb), 0.96); /* Almost white settings */
+  --control-bg: rgba(var(--surface-rgb), 0.92); /* Language and season toggles */
+  --view-switch-bg: rgba(var(--surface-rgb), 0.8); /* View switch capsule */
+  --range-controls-bg: rgba(var(--surface-rgb), 0.85); /* Range controls bar */
+  --legend-bg: rgba(var(--surface-rgb), 0.85); /* Legend chips */
+  --switch-bg: rgba(var(--surface-rgb), 0.8); /* Year view toggle */
+  --ghost-bg: rgba(var(--surface-rgb), 0.7); /* Ghost buttons */
+  --field-bg: rgba(var(--surface-rgb), 0.9); /* Form fields */
+  --modal-overlay: rgba(var(--ink-rgb), 0.4); /* Purple overlay */
+
+  /* Shadows - Colorful shadows */
+  --shadow: 0 20px 50px rgba(var(--accent-rgb), 0.2); /* Pink shadow */
+  --view-btn-active-shadow: 0 12px 24px rgba(var(--accent-rgb), 0.4); /* Bright shadow */
+  --btn-primary-shadow: 0 16px 32px rgba(var(--accent-rgb), 0.4); /* Primary button shadow */
+  --year-toggle-active-shadow: 0 10px 20px rgba(var(--accent-2-rgb), 0.3); /* Violet shadow */
+
+  /* Badges + progress */
+  --badge-bg: rgba(var(--accent-2-rgb), 0.2); /* Violet badge background */
+  --badge-text: var(--accent-2); /* Badge text */
+  --progress-ring-bg: rgba(var(--accent-rgb), 0.2); /* Progress ring base */
+  --progress-ring-inner-bg: var(--surface); /* Progress ring inner */
+  --progress-ring-track: rgba(var(--accent-rgb), 0.3); /* Progress ring remainder */
+  --progress-bar-track-bg: rgba(var(--ink-rgb), 0.15); /* Progress bar track */
+  --progress-bar-fill-bg: var(--accent); /* Progress bar fill */
+
+  /* Heatmap - Vibrant colors */
+  --heatmap-empty: rgba(var(--accent-3-rgb), 0.1); /* Light cyan empty cell */
+  --heatmap-border: rgba(var(--accent-2-rgb), 0.2); /* Violet border */
+  --heatmap-weekend: #7c4dff; /* Bright violet weekend labels */
+  --heatmap-today: var(--accent); /* Today outline in magenta */
+  --heatmap-holiday-day: var(--accent); /* Holiday day outline */
+  --event-plan-1: rgba(255, 193, 7, 0.9); /* Bright yellow for plan level 1 */
+  --event-plan-2: rgba(var(--accent-2-rgb), 0.85); /* Violet for plan level 2 */
+  --event-plan-3: rgba(var(--accent-rgb), 0.9); /* Magenta for plan level 3 */
+  --event-holiday: rgba(var(--accent-rgb), 0.9); /* Holiday range */
+  --event-adjustment: rgba(var(--accent-3-rgb), 0.8); /* Cyan adjustment days */
+
+  /* Heatmap intensity - Bright gradient */
+  --heat-0: #f3e5f5; /* Very light purple */
+  --heat-1: #e1bee7; /* Light purple */
+  --heat-2: #ce93d8; /* Medium purple */
+  --heat-3: #ba68c8; /* Bright purple */
+  --heat-4: #ab47bc; /* Vibrant purple */
+
+  /* Priority + pills */
+  --priority-high-border: rgba(var(--accent-rgb), 0.7); /* Magenta priority high */
+  --priority-med-border: rgba(var(--accent-2-rgb), 0.7); /* Violet priority med */
+  --priority-low-border: rgba(var(--accent-3-rgb), 0.7); /* Cyan priority low */
+  --month-bars-bg: linear-gradient(90deg, rgba(var(--accent-2-rgb), 0.9), rgba(var(--accent-rgb), 0.9)); /* Violet to magenta */
+  --month-pill-plan-bg: rgba(var(--accent-2-rgb), 0.2); /* Plan pill bg */
+  --month-pill-holiday-bg: rgba(var(--accent-rgb), 0.2); /* Holiday pill bg */
+  --month-pill-holiday-border: rgba(var(--accent-rgb), 0.5); /* Holiday pill border */
+  --month-pill-holiday-strong-bg: rgba(var(--accent-rgb), 0.3); /* Statutory holiday bg */
+  --month-pill-holiday-strong-border: rgba(var(--accent-rgb), 0.8); /* Statutory holiday border */
+  --month-pill-adjustment-bg: rgba(var(--accent-3-rgb), 0.2); /* Adjustment pill bg */
+  --month-pill-adjustment-border: rgba(var(--accent-3-rgb), 0.5); /* Adjustment pill border */
+  --month-pill-empty-bg: rgba(var(--surface-rgb), 0.7); /* Empty pill bg */
+  --task-pill-bg: rgba(var(--accent-rgb), 0.15); /* Task pill bg */
+  --day-track-grid: repeating-linear-gradient(to bottom, rgba(var(--accent-2-rgb), 0.15), rgba(var(--accent-2-rgb), 0.15) 1px, transparent 1px, transparent var(--hour-height)); /* Violet grid lines */
+  --day-track-bg: rgba(var(--surface-rgb), 0.85); /* Day track bg */
+  --task-block-bg: rgba(var(--accent-rgb), 0.2); /* Task block bg */
+  --task-block-med-bg: rgba(var(--accent-2-rgb), 0.2); /* Task block med bg */
+  --task-block-low-bg: rgba(var(--accent-3-rgb), 0.25); /* Task block low bg */
+  --task-block-shadow: 0 10px 20px rgba(var(--accent-rgb), 0.2); /* Colorful task block shadow */
+  --tooltip-shadow: 0 16px 32px rgba(var(--accent-rgb), 0.25); /* Colorful tooltip shadow */
+
+  /* Season swatches - Highly saturated */
+  --season-swatch-spring: #00e676; /* Bright spring green */
+  --season-swatch-spring-rgb: 0, 230, 118; /* Spring swatch rgb */
+  --season-swatch-summer: #18ffff; /* Bright summer cyan */
+  --season-swatch-summer-rgb: 24, 255, 255; /* Summer swatch rgb */
+  --season-swatch-autumn: #ff9100; /* Bright autumn orange */
+  --season-swatch-autumn-rgb: 255, 145, 0; /* Autumn swatch rgb */
+  --season-swatch-winter: #ff4081; /* Winter swatch (matches accent) */
+  --season-swatch-winter-rgb: 255, 64, 129; /* Winter swatch rgb */
+  --season-swatch-joyful: #ffea00; /* Joyful swatch */
+  --season-swatch-joyful-rgb: 255, 234, 0; /* Joyful swatch rgb */
+
+  /* Season option pills - Colorful backgrounds */
+  --season-option-spring-bg: rgba(var(--season-swatch-spring-rgb), 0.2); /* Spring toggle bg */
+  --season-option-spring-border: rgba(var(--season-swatch-spring-rgb), 0.5); /* Spring toggle border */
+  --season-option-spring-shadow: 0 12px 24px rgba(var(--season-swatch-spring-rgb), 0.4); /* Spring toggle shadow */
+  --season-option-summer-bg: rgba(var(--season-swatch-summer-rgb), 0.2); /* Summer toggle bg */
+  --season-option-summer-border: rgba(var(--season-swatch-summer-rgb), 0.5); /* Summer toggle border */
+  --season-option-summer-shadow: 0 12px 24px rgba(var(--season-swatch-summer-rgb), 0.4); /* Summer toggle shadow */
+  --season-option-autumn-bg: rgba(var(--season-swatch-autumn-rgb), 0.2); /* Autumn toggle bg */
+  --season-option-autumn-border: rgba(var(--season-swatch-autumn-rgb), 0.5); /* Autumn toggle border */
+  --season-option-autumn-shadow: 0 12px 24px rgba(var(--season-swatch-autumn-rgb), 0.4); /* Autumn toggle shadow */
+  --season-option-winter-bg: rgba(var(--season-swatch-winter-rgb), 0.2); /* Winter toggle bg */
+  --season-option-winter-border: rgba(var(--season-swatch-winter-rgb), 0.5); /* Winter toggle border */
+  --season-option-winter-shadow: 0 12px 24px rgba(var(--season-swatch-winter-rgb), 0.4); /* Winter toggle shadow */
+  --season-option-joyful-bg: rgba(var(--season-swatch-joyful-rgb), 0.2); /* Joyful toggle bg */
+  --season-option-joyful-border: rgba(var(--season-swatch-joyful-rgb), 0.5); /* Joyful toggle border */
+  --season-option-joyful-shadow: 0 12px 24px rgba(var(--season-swatch-joyful-rgb), 0.4); /* Joyful toggle shadow */
+
+  /* Theme toggle widget - Colorful version */
+  --toggle-tap-highlight: rgba(0, 0, 0, 0); /* Remove tap highlight */
+  --toggle-day-sky: #7c4dff; /* Violet sky */
+  --toggle-night-sky: #311b92; /* Deep violet night sky */
+  --toggle-sun-bg: #ffea00; /* Bright yellow sun */
+  --toggle-sun-glow: #ffff8d; /* Sun glow */
+  --toggle-moon-bg: #d1c4e9; /* Light purple moon */
+  --toggle-moon-glow: #f3e5f5; /* Moon glow */
+  --toggle-moon-surface: #b39ddb; /* Moon surface */
+  --toggle-shadow-strong: rgba(124, 77, 255, 0.5); /* Violet shadow */
+  --toggle-shadow-soft: rgba(124, 77, 255, 0.3); /* Violet soft shadow */
+  --toggle-day-glow-1: rgba(255, 255, 255, 0.3); /* Day glow 1 */
+  --toggle-day-glow-2: rgba(255, 255, 255, 0.2); /* Day glow 2 */
+  --toggle-day-glow-3: rgba(255, 255, 255, 0.1); /* Day glow 3 */
+  --toggle-cloud: #ffffff; /* White cloud */
+  --toggle-star: #ffff00; /* Yellow star */
+}

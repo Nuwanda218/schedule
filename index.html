@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Schedule Studio</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/data/theme/autumn.css" id="seasonTheme">
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="corner-controls">
+      <button class="settings-toggle" id="settingsToggle" type="button" aria-label="Settings" aria-expanded="false" aria-controls="settingsPanel">
+        <span class="settings-icon" aria-hidden="true">&#9881;</span>
+      </button>
+      <div class="settings-panel" id="settingsPanel" aria-hidden="true">
+        <div class="settings-header">
+          <span class="settings-title" data-i18n="settingsTitle">Settings</span>
+        </div>
+        <div class="settings-section">
+          <div class="settings-label" data-i18n="settingsLanguage">Language</div>
+          <button class="lang-toggle" id="langToggle" type="button">
+            <span class="lang-primary" lang="en">English</span>
+            <span class="lang-secondary" lang="zh">&#20013;&#25991;</span>
+          </button>
+        </div>
+        <div class="settings-section">
+          <div class="settings-label" data-i18n="settingsSeason">Season theme</div>
+          <div class="season-toggle" id="seasonToggle" role="group" aria-label="Season theme">
+            <button class="season-option" data-season="spring" data-i18n="seasonSpring" type="button" aria-pressed="false">Spring</button>
+            <button class="season-option" data-season="summer" data-i18n="seasonSummer" type="button" aria-pressed="false">Summer</button>
+            <button class="season-option is-active" data-season="autumn" data-i18n="seasonAutumn" type="button" aria-pressed="true">Autumn</button>
+            <button class="season-option" data-season="winter" data-i18n="seasonWinter" type="button" aria-pressed="false">Winter</button>
+            <button class="season-option" data-season="joyful" data-i18n="seasonJoyful" type="button" aria-pressed="false">Joyful</button>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-label" data-i18n="settingsMode">Appearance</div>
+          <theme-button id="themeToggle" value="light" size="2.2" aria-label="Theme toggle"></theme-button>
+        </div>
+      </div>
+    </div>
+    <header class="site-header reveal" style="--delay: 0.05s">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">&#9889;Nuwanda</div>
+        <div class="brand-copy">
+          <p class="eyebrow">Schedule Studio</p>
+          <h1 data-i18n="tagline">Plan the year, move the day</h1>
+        </div>
+      </div>
+      <nav class="view-switch" aria-label="View switcher">
+        <button class="view-btn is-active" data-view="year" data-i18n="viewYear" type="button">Year</button>
+        <button class="view-btn" data-view="month" data-i18n="viewMonth" type="button">Month</button>
+        <button class="view-btn" data-view="week" data-i18n="viewWeek" type="button">Week</button>
+        <button class="view-btn" data-view="day" data-i18n="viewDay" type="button">Day</button>
+      </nav>
+      <div class="header-actions">
+        <button class="btn ghost" data-action="today" data-i18n="today" type="button">Today</button>
+        <button class="btn primary" data-action="add" data-i18n="addTask" type="button">Add Task</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar reveal" style="--delay: 0.1s">
+        <section class="panel">
+          <h2 data-i18n="focusFilters">Focus Filters</h2>
+          <p class="panel-note" data-i18n="filterNote">Filter by tag and status for a lighter view.</p>
+          <div class="chip-row" data-filter-group="tag">
+            <button class="chip is-active" data-filter-value="all" data-i18n="all" type="button">All</button>
+            <button class="chip" data-filter-value="studio" data-i18n="tagStudio" type="button">Studio</button>
+            <button class="chip" data-filter-value="admin" data-i18n="tagAdmin" type="button">Admin</button>
+            <button class="chip" data-filter-value="health" data-i18n="tagHealth" type="button">Health</button>
+            <button class="chip" data-filter-value="learning" data-i18n="tagLearning" type="button">Learning</button>
+            <button class="chip" data-filter-value="travel" data-i18n="tagTravel" type="button">Travel</button>
+          </div>
+          <div class="chip-row" data-filter-group="status">
+            <button class="chip is-active" data-filter-value="all" data-i18n="all" type="button">All</button>
+            <button class="chip" data-filter-value="open" data-i18n="statusOpen" type="button">Open</button>
+            <button class="chip" data-filter-value="done" data-i18n="statusDone" type="button">Done</button>
+          </div>
+        </section>
+
+        <section class="panel today-panel">
+          <div class="panel-header">
+            <h2 data-i18n="todayTasks">Today's Tasks</h2>
+            <span class="badge" id="todayBadge">-</span>
+          </div>
+          <ul class="today-list" id="todayList" hidden></ul>
+          <div class="today-empty" id="todayEmpty" hidden>
+            <p class="today-quote" id="todayQuote">-</p>
+            <p class="today-quote-source" id="todayQuoteSource">-</p>
+            <button class="btn ghost" id="todayQuoteButton" data-i18n="quoteShuffle" type="button">Another line</button>
+          </div>
+        </section>
+
+        <section class="panel year-overview-panel">
+          <div class="panel-header">
+            <h2 data-i18n="yearSnapshot">Year Snapshot</h2>
+            <span class="badge" id="yearProgressBadge">-</span>
+          </div>
+          <div class="year-overview">
+            <div class="year-progress">
+              <div class="year-progress-row">
+                <span class="year-progress-label" data-i18n="yearProgress">Year progress</span>
+                <span class="year-progress-value" id="yearProgressValue">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-bar-fill" id="yearProgressFill"></div>
+              </div>
+            </div>
+            <div class="overview-grid">
+              <div class="overview-card">
+                <div class="overview-label" data-i18n="nextHoliday">Next holiday</div>
+                <div class="overview-title" id="nextHolidayTitle">-</div>
+                <div class="overview-meta" id="nextHolidayMeta">-</div>
+              </div>
+              <div class="overview-card">
+                <div class="overview-label" data-i18n="nextPlan">Next plan</div>
+                <div class="overview-title" id="nextPlanTitle">-</div>
+                <div class="overview-meta" id="nextPlanMeta">-</div>
+              </div>
+            </div>
+          </div>
+          <p class="status-message" id="statusMessage">Ready.</p>
+        </section>
+      </aside>
+
+      <section class="content reveal" style="--delay: 0.15s">
+        <div class="content-header">
+          <div class="range-controls">
+            <button class="icon-btn" data-shift="-1" data-i18n="prev" type="button" aria-label="Previous range">Prev</button>
+            <div class="range-label" id="rangeLabel">-</div>
+            <button class="icon-btn" data-shift="1" data-i18n="next" type="button" aria-label="Next range">Next</button>
+          </div>
+          <div class="legend">
+            <span class="legend-item priority-high" data-i18n="priorityHigh">High</span>
+            <span class="legend-item priority-med" data-i18n="priorityMed">Medium</span>
+            <span class="legend-item priority-low" data-i18n="priorityLow">Low</span>
+          </div>
+        </div>
+
+        <div class="views">
+          <section class="view-panel is-active" data-view-panel="year">
+            <div class="panel-header year-header">
+              <div>
+                <h2 data-i18n="yearOverview">Year Overview</h2>
+                <p class="panel-note" data-i18n="yearNote">Tap a month to focus on its calendar.</p>
+              </div>
+              <div class="year-header-actions">
+                <span class="badge" data-i18n="monthsBadge">12 months</span>
+                <div class="year-toggle" role="tablist" aria-label="Year view mode">
+                  <button class="icon-btn is-active" data-year-view="cards" data-i18n="yearViewCards" type="button">Cards</button>
+                  <button class="icon-btn" data-year-view="heatmap" data-i18n="yearViewHeatmap" type="button">Heatmap</button>
+                </div>
+              </div>
+            </div>
+            <div class="year-view-panel is-active" data-year-view-panel="cards">
+              <div class="year-grid" id="yearGrid"></div>
+            </div>
+            <div class="year-view-panel" data-year-view-panel="heatmap">
+              <div class="year-heatmap" id="yearHeatmap">
+                <div class="heatmap-months" id="yearHeatmapMonths"></div>
+                <div class="heatmap-days" id="yearHeatmapDays"></div>
+                <div class="heatmap-grid" id="yearHeatmapGrid"></div>
+              </div>
+              <div class="heatmap-legend" id="yearHeatmapLegend"></div>
+            </div>
+            <div class="year-summary" id="yearSummary"></div>
+          </section>
+
+          <section class="view-panel" data-view-panel="month">
+            <div class="panel-header">
+              <div>
+                <h2 data-i18n="monthMap">Month Map</h2>
+                <p class="panel-note" data-i18n="monthNote">Heat blocks show how full each day is.</p>
+              </div>
+              <span class="badge" data-i18n="calendarBadge">Calendar</span>
+            </div>
+            <div class="month-grid" id="monthGrid"></div>
+          </section>
+
+          <section class="view-panel" data-view-panel="week">
+            <div class="panel-header">
+              <div>
+                <h2 data-i18n="weekFlow">Week Flow</h2>
+                <p class="panel-note" data-i18n="weekNote">Drag is not wired yet, but blocks show time.</p>
+              </div>
+              <span class="badge" data-i18n="weekBadge">7 days</span>
+            </div>
+            <div class="schedule-grid week-grid" id="weekGrid"></div>
+          </section>
+
+          <section class="view-panel" data-view-panel="day">
+            <div class="panel-header">
+              <div>
+                <h2 data-i18n="dayFocus">Day Focus</h2>
+                <p class="panel-note" data-i18n="dayNote">Log details and completion in the task editor.</p>
+              </div>
+              <span class="badge" data-i18n="timelineBadge">Timeline</span>
+            </div>
+            <div class="schedule-grid day-grid" id="dayGrid"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p data-i18n="footerNote">Schedule Studio prototype. Data is stored in your browser.</p>
+    </footer>
+
+    <div class="modal" id="taskModal" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-header">
+          <h3 id="modalTitle">Add Task</h3>
+          <button class="icon-btn" data-action="close" data-i18n="modalClose" type="button" aria-label="Close dialog">Close</button>
+        </div>
+        <form id="taskForm">
+          <input type="hidden" id="taskId">
+          <div class="form-grid">
+            <label class="field">
+              <span data-i18n="fieldTitle">Title</span>
+              <input id="taskTitle" name="title" type="text" placeholder="Design review" required>
+            </label>
+            <label class="field">
+              <span data-i18n="fieldDate">Date</span>
+              <input id="taskDate" name="date" type="date" required>
+            </label>
+            <label class="field">
+              <span data-i18n="fieldStart">Start</span>
+              <input id="taskStart" name="start" type="time" required>
+            </label>
+            <label class="field">
+              <span data-i18n="fieldEnd">End</span>
+              <input id="taskEnd" name="end" type="time" required>
+            </label>
+            <label class="field">
+              <span data-i18n="fieldPriority">Priority</span>
+              <select id="taskPriority" name="priority">
+                <option value="high" data-i18n-option="priorityHigh">High</option>
+                <option value="med" data-i18n-option="priorityMed" selected>Medium</option>
+                <option value="low" data-i18n-option="priorityLow">Low</option>
+              </select>
+            </label>
+            <label class="field">
+              <span data-i18n="fieldTag">Tag</span>
+              <select id="taskTag" name="tag">
+                <option value="studio" data-i18n-option="tagStudio">Studio</option>
+                <option value="admin" data-i18n-option="tagAdmin">Admin</option>
+                <option value="health" data-i18n-option="tagHealth">Health</option>
+                <option value="learning" data-i18n-option="tagLearning">Learning</option>
+                <option value="travel" data-i18n-option="tagTravel">Travel</option>
+              </select>
+            </label>
+            <label class="field field-wide">
+              <span data-i18n="fieldNotes">Notes</span>
+              <textarea id="taskNotes" name="notes" rows="3" placeholder="Add details or a quick memory."></textarea>
+            </label>
+            <label class="field field-wide field-inline">
+              <input id="taskCompleted" name="completed" type="checkbox">
+              <span data-i18n="fieldCompleted">Mark as completed</span>
+            </label>
+          </div>
+          <div class="modal-actions">
+            <button class="btn ghost" data-action="close" data-i18n="modalCancel" type="button">Cancel</button>
+            <button class="btn danger" id="deleteTask" data-i18n="modalDelete" type="button">Delete</button>
+            <button class="btn primary" data-i18n="modalSave" type="submit">Save task</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/button.js"></script>
+  </body>
+</html>
