@@ -1,86 +1,40 @@
-const STORAGE_KEY = "schedule-studio-data-v1";
-const LANG_STORAGE_KEY = "schedule-studio-lang-v1";
-const SEASON_STORAGE_KEY = "schedule-studio-season-v1";
-const DEFAULT_LANGUAGE = "en";
-const DEFAULT_SEASON = "autumn";
-const SEASONS = ["spring", "summer", "autumn", "winter", "joyful"];
-const DAY_START = 6;
-const DAY_END = 22;
-const HOUR_HEIGHT = 56;
+import {
+  formatDate,
+  getMonthName,
+  getMonthShort,
+  getDayName,
+  formatShortDate,
+  diffInDays,
+  getDaysInMonth,
+  parseDate,
+  addDays,
+  getWeekIndex,
+  getWeekStart,
+  getDayIndex
+} from "./modules/dates.js";
 
-const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December"
-];
-
-const MONTH_SLUGS = MONTH_NAMES.map((name) => name.toLowerCase());
-const DATA_ROOT = "assets/data/schedule";
-const THEME_ROOT = "assets/data/theme";
-const QUOTES_PATH = "assets/data/quotes/today-quotes.json";
-
-const MONTH_SHORT = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec"
-];
-
-const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-const MONTH_NAMES_ZH = [
-  "\u4e00\u6708",
-  "\u4e8c\u6708",
-  "\u4e09\u6708",
-  "\u56db\u6708",
-  "\u4e94\u6708",
-  "\u516d\u6708",
-  "\u4e03\u6708",
-  "\u516b\u6708",
-  "\u4e5d\u6708",
-  "\u5341\u6708",
-  "\u5341\u4e00\u6708",
-  "\u5341\u4e8c\u6708"
-];
-
-const MONTH_SHORT_ZH = [
-  "1\u6708",
-  "2\u6708",
-  "3\u6708",
-  "4\u6708",
-  "5\u6708",
-  "6\u6708",
-  "7\u6708",
-  "8\u6708",
-  "9\u6708",
-  "10\u6708",
-  "11\u6708",
-  "12\u6708"
-];
-
-const DAY_NAMES_ZH = ["\u5468\u4e00", "\u5468\u4e8c", "\u5468\u4e09", "\u5468\u56db", "\u5468\u4e94", "\u5468\u516d", "\u5468\u65e5"];
-
-const LANG_NAMES = {
-  en: "English",
-  zh: "\u4e2d\u6587"
-};
+import {
+  STORAGE_KEY,
+  LANG_STORAGE_KEY,
+  SEASON_STORAGE_KEY,
+  DEFAULT_LANGUAGE,
+  DEFAULT_SEASON,
+  SEASONS,
+  DAY_START,
+  DAY_END,
+  HOUR_HEIGHT,
+  MONTH_NAMES,
+  MONTH_SLUGS,
+  DATA_ROOT,
+  THEME_ROOT,
+  QUOTES_PATH,
+  MONTH_SHORT,
+  DAY_NAMES,
+  MONTH_NAMES_ZH,
+  MONTH_SHORT_ZH,
+  DAY_NAMES_ZH,
+  LANG_NAMES
+} from "./core/constants.js";
 
 const I18N = {
   en: {
@@ -2267,42 +2221,6 @@ function toHourValue(timeString) {
   return hour + minute / 60;
 }
 
-function formatDate(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function getMonthName(monthIndex, lang) {
-  return lang === "zh" ? MONTH_NAMES_ZH[monthIndex] : MONTH_NAMES[monthIndex];
-}
-
-function getMonthShort(monthIndex, lang) {
-  return lang === "zh" ? MONTH_SHORT_ZH[monthIndex] : MONTH_SHORT[monthIndex];
-}
-
-function getDayName(dayIndex, lang) {
-  return lang === "zh" ? DAY_NAMES_ZH[dayIndex] : DAY_NAMES[dayIndex];
-}
-
-function formatShortDate(date, lang = "en") {
-  if (lang === "zh") {
-    return `${MONTH_SHORT_ZH[date.getMonth()]}${date.getDate()}\u65e5`;
-  }
-  return `${MONTH_SHORT[date.getMonth()]} ${date.getDate()}`;
-}
-
-function diffInDays(start, end) {
-  const startUtc = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
-  const endUtc = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate());
-  return Math.round((endUtc - startUtc) / 86400000);
-}
-
-function getDaysInMonth(year, monthIndex) {
-  return new Date(year, monthIndex + 1, 0).getDate();
-}
-
 function formatDayCount(days, lang) {
   if (lang === "zh") {
     return `${days}${getText("labelDays", lang)}`;
@@ -2365,36 +2283,6 @@ function formatMoreLabel(count, lang) {
     return `+${count}${getText("more", lang)}`;
   }
   return `+${count} ${getText("more", lang)}`;
-}
-
-function parseDate(value) {
-  const [year, month, day] = value.split("-").map(Number);
-  return new Date(year, month - 1, day);
-}
-
-function addDays(date, amount) {
-  const next = new Date(date);
-  next.setDate(next.getDate() + amount);
-  return next;
-}
-
-function getWeekIndex(date) {
-  const first = new Date(date.getFullYear(), date.getMonth(), 1);
-  const firstIndex = (first.getDay() + 6) % 7;
-  return Math.floor((date.getDate() + firstIndex - 1) / 7) + 1;
-}
-
-function getWeekStart(date) {
-  const start = new Date(date);
-  const day = start.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  start.setDate(start.getDate() + diff);
-  return start;
-}
-
-function getDayIndex(date) {
-  const day = date.getDay();
-  return day === 0 ? 6 : day - 1;
 }
 
 document.addEventListener("DOMContentLoaded", init);
