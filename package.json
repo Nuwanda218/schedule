@@ -1,0 +1,14 @@
+{
+  "name": "schedule-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "preview": "vite preview --host 127.0.0.1",
+    "check": "node scripts/check-assets.mjs"
+  },
+  "devDependencies": {
+    "vite": "^6.5.0"
+  }
+}
