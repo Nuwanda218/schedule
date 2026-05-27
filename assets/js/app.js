@@ -19,6 +19,7 @@ import {
   groupByDate,
   toHourValue
 } from "./modules/tasks.js";
+import { toggleSettingsPanel as toggleSettingsPanelComponent } from "./components/settingsPanel.js";
 import {
   getSeasonThemePath,
   loadSeason,
@@ -425,14 +426,7 @@ function applyLanguage(shouldRender = true) {
 }
 
 function toggleSettingsPanel(forceOpen) {
-  if (!ui.cornerControls || !ui.settingsToggle || !ui.settingsPanel) {
-    return;
-  }
-  const isOpen = ui.cornerControls.classList.contains("is-open");
-  const nextOpen = typeof forceOpen === "boolean" ? forceOpen : !isOpen;
-  ui.cornerControls.classList.toggle("is-open", nextOpen);
-  ui.settingsToggle.setAttribute("aria-expanded", String(nextOpen));
-  ui.settingsPanel.setAttribute("aria-hidden", String(!nextOpen));
+  toggleSettingsPanelComponent(ui, forceOpen);
 }
 
 function getActiveTheme() {
