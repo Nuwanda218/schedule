@@ -7,6 +7,12 @@ import {
   saveLanguage
 } from "./modules/i18n.js";
 import {
+  getSeasonThemePath,
+  loadSeason,
+  normalizeSeason,
+  saveSeason
+} from "./modules/theme.js";
+import {
   formatDate,
   getMonthName,
   getMonthShort,
@@ -23,17 +29,14 @@ import {
 
 import {
   LANG_STORAGE_KEY,
-  SEASON_STORAGE_KEY,
   DEFAULT_LANGUAGE,
   DEFAULT_SEASON,
-  SEASONS,
   DAY_START,
   DAY_END,
   HOUR_HEIGHT,
   MONTH_NAMES,
   MONTH_SLUGS,
   DATA_ROOT,
-  THEME_ROOT,
   QUOTES_PATH,
   MONTH_SHORT,
   DAY_NAMES,
@@ -427,10 +430,6 @@ function toggleSettingsPanel(forceOpen) {
   ui.settingsPanel.setAttribute("aria-hidden", String(!nextOpen));
 }
 
-function normalizeSeason(season) {
-  return SEASONS.includes(season) ? season : DEFAULT_SEASON;
-}
-
 function getActiveTheme() {
   if (document.body.dataset.theme) {
     return document.body.dataset.theme;
@@ -439,29 +438,6 @@ function getActiveTheme() {
     return ui.themeToggle.getAttribute("value") || "light";
   }
   return "light";
-}
-
-function getSeasonThemePath(season, theme) {
-  const safeSeason = normalizeSeason(season);
-  const safeTheme = theme === "dark" ? "dark" : "light";
-  const suffix = safeTheme === "dark" ? "-dark" : "";
-  return `${THEME_ROOT}/${safeSeason}${suffix}.css`;
-}
-
-function loadSeason() {
-  try {
-    return normalizeSeason(localStorage.getItem(SEASON_STORAGE_KEY));
-  } catch (error) {
-    return DEFAULT_SEASON;
-  }
-}
-
-function saveSeason(season) {
-  try {
-    localStorage.setItem(SEASON_STORAGE_KEY, season);
-  } catch (error) {
-    // Ignore storage errors for season preference.
-  }
 }
 
 function applySeason(season) {
