@@ -1,7 +1,7 @@
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .panel {
@@ -67,91 +67,28 @@
   font-weight: 600;
 }
 
-.progress-ring {
-  width: 140px;
-  height: 140px;
-  margin: 0 auto 16px;
-  border-radius: 50%;
-  background: var(--progress-ring-bg);
-  display: grid;
-  place-items: center;
-}
-
-.progress-ring-inner {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  background: var(--progress-ring-inner-bg);
-  display: grid;
-  place-items: center;
-  text-align: center;
-  gap: 2px;
-}
-
-.progress-value {
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.progress-label {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.progress-bar {
-  width: 100%;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--progress-bar-track-bg);
-  overflow: hidden;
-  margin-bottom: 16px;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  width: 0%;
-  background: var(--progress-bar-fill-bg);
-  transition: width 0.3s ease;
-}
-
-.stat-grid {
-  display: grid;
-  gap: 12px;
-}
-
-.stat-card {
-  border: 1px dashed var(--line);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.stat-value {
-  font-size: 18px;
-  font-weight: 600;
-}
-
 .today-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .today-item {
   display: grid;
-  grid-template-columns: 72px 1fr;
-  gap: 10px;
-  align-items: baseline;
-  padding: 8px 10px;
+  grid-template-columns: auto 82px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
   border: 1px dashed var(--line);
   border-radius: var(--radius-sm);
   background: var(--ghost-bg);
+  transition: opacity 0.3s ease;
+}
+
+.today-item.is-done {
+  opacity: 0.55;
 }
 
 .today-item.is-done .today-title {
@@ -166,7 +103,7 @@
 }
 
 .today-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
 }
 
@@ -192,6 +129,7 @@
   display: grid;
   gap: 8px;
   background: var(--ghost-bg);
+  margin-top: 12px;
 }
 
 .today-quote {
@@ -210,10 +148,184 @@
   gap: 10px;
 }
 
-.status-message {
-  margin: 12px 0 0;
+.year-overview {
+  display: grid;
+  gap: 18px;
+}
+
+.recent-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  background: var(--ghost-bg);
+}
+
+.overview-label {
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.overview-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.overview-meta {
+  margin-top: 4px;
   font-size: 12px;
   color: var(--muted);
+}
+
+.year-progress {
+  display: grid;
+  gap: 14px;
+}
+
+.year-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.year-progress-label,
+.year-progress-value {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.year-progress-label {
+  color: var(--muted);
+}
+
+.year-timeline {
+  padding: 44px 2px 48px;
+}
+
+.year-timeline-track {
+  position: relative;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--line) 0 1px,
+    transparent 1px calc(100% / 12)
+  ),
+  var(--progress-bar-track-bg);
+  background-size: calc(100% / 12) 100%, 100% 100%;
+}
+
+.year-timeline-progress {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--event-plan-1), var(--event-plan-2), var(--event-plan-3));
+  transition: width 0.3s ease;
+}
+
+.year-timeline-now {
+  position: absolute;
+  top: 50%;
+  width: 2px;
+  height: 28px;
+  background: var(--accent);
+  transform: translate(-1px, -50%);
+  border-radius: 999px;
+  box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.12);
+}
+
+.year-timeline-events {
+  position: absolute;
+  inset: 0;
+}
+
+.year-timeline-event {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.year-timeline-event.top {
+  top: -8px;
+}
+
+.year-timeline-event.bottom {
+  top: 12px;
+}
+
+.year-timeline-dot {
+  position: absolute;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--panel-bg);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 6px 14px rgba(var(--ink-rgb), 0.16);
+}
+
+.year-timeline-event.top .year-timeline-dot {
+  top: -4px;
+}
+
+.year-timeline-event.bottom .year-timeline-dot {
+  top: -4px;
+}
+
+.year-timeline-label {
+  position: absolute;
+  left: 0;
+  max-width: 92px;
+  padding: 3px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform: translateX(-50%);
+}
+
+.year-timeline-event.top .year-timeline-label {
+  bottom: 14px;
+}
+
+.year-timeline-event.bottom .year-timeline-label {
+  top: 14px;
+}
+
+.year-timeline-event.plan-1 .year-timeline-dot {
+  background: var(--event-plan-1);
+}
+
+.year-timeline-event.plan-2 .year-timeline-dot {
+  background: var(--event-plan-2);
+}
+
+.year-timeline-event.plan-3 .year-timeline-dot {
+  background: var(--event-plan-3);
+}
+
+.year-timeline-event.holiday .year-timeline-dot {
+  background: var(--event-holiday);
+}
+
+.year-timeline-event.adjustment .year-timeline-dot {
+  background: var(--event-adjustment);
 }
 
 .content {

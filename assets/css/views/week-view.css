@@ -7,3 +7,15 @@
 .week-grid {
   grid-template-columns: 72px repeat(7, minmax(140px, 1fr));
 }
+
+.week-grid .day-header {
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.week-grid .day-header:hover {
+  background: var(--accent-faint, rgba(var(--accent-rgb, 100, 100, 255), 0.08));
+  color: var(--accent);
+}

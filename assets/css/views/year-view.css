@@ -21,6 +21,31 @@
   box-shadow: var(--shadow);
 }
 
+.month-card.is-spotlight {
+  animation: spotlight-pulse 1s ease-out;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.25);
+}
+
+@keyframes spotlight-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.5);
+  }
+  30% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(var(--accent-rgb), 0.2);
+  }
+  60% {
+    transform: scale(0.98);
+    box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.25);
+  }
+}
+
 .month-title {
   font-weight: 700;
 }
@@ -183,6 +208,72 @@
 .heatmap-cell.is-today {
   outline: 2px solid var(--heatmap-today);
   outline-offset: 1px;
+}
+
+.heatmap-cell.is-spotlight {
+  animation: heatmap-spotlight 1.4s ease-out;
+  z-index: 10000;
+}
+
+.heatmap-cell.is-spotlight::before,
+.heatmap-cell.is-spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.heatmap-cell.is-spotlight::before {
+  width: 6px;
+  height: 6px;
+  animation: heatmap-ripple 1.4s ease-out forwards;
+}
+
+.heatmap-cell.is-spotlight::after {
+  width: 6px;
+  height: 6px;
+  animation: heatmap-ripple 1.4s 0.2s ease-out forwards;
+}
+
+@keyframes heatmap-spotlight {
+  0% {
+    transform: scale(1);
+    outline-color: var(--accent);
+    outline-width: 2px;
+    background: var(--accent);
+  }
+  20% {
+    transform: scale(3);
+    outline-color: var(--accent);
+    outline-width: 3px;
+    background: var(--accent);
+  }
+  50% {
+    transform: scale(2);
+    outline-width: 2px;
+  }
+  70% {
+    transform: scale(2.6);
+    outline-color: var(--accent);
+    outline-width: 3px;
+  }
+  100% {
+    transform: scale(1);
+    outline-width: 2px;
+  }
+}
+
+@keyframes heatmap-ripple {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.7);
+    opacity: 1;
+  }
+  100% {
+    box-shadow: 0 0 0 36px rgba(var(--accent-rgb), 0);
+    opacity: 0;
+  }
 }
 
 .heatmap-label {

@@ -14,12 +14,18 @@ import {
   formatMoreLabel,
   formatRangeLabelForLang,
   formatTaskCount,
-  formatWeekRangeLabel,
-  getTopTag,
   groupByDate,
   toHourValue
 } from "./modules/tasks.js";
 import { fetchQuotes } from "./modules/quotes.js";
+import { escapeAttribute, escapeHtml } from "./modules/html.js";
+import {
+  getConfig,
+  getDefaultTaskConfig,
+  getEnabledPriorities,
+  getEnabledStatusFilters,
+  getEnabledTags
+} from "./modules/config.js";
 import { toggleSettingsPanel as toggleSettingsPanelComponent } from "./components/settingsPanel.js";
 import {
   getSeasonThemePath,
@@ -27,6 +33,15 @@ import {
   normalizeSeason,
   saveSeason
 } from "./modules/theme.js";
+import {
+  getTasksForDate,
+  getTasksForMonth,
+  getTasksForWeek,
+  mergeTasks,
+  normalizeTask,
+  sortTasksByDateTime
+} from "./modules/taskStore.js";
+import { showToast } from "./modules/toast.js";
 import {
   formatDate,
   getMonthName,
@@ -60,35 +75,19 @@ import {
   writeStoredTasks
 } from "./core/storage.js";
 
-const TAG_LABELS = {
-  en: {
-    studio: I18N.en.tagStudio,
-    admin: I18N.en.tagAdmin,
-    health: I18N.en.tagHealth,
-    learning: I18N.en.tagLearning,
-    travel: I18N.en.tagTravel
-  },
-  zh: {
-    studio: I18N.zh.tagStudio,
-    admin: I18N.zh.tagAdmin,
-    health: I18N.zh.tagHealth,
-    learning: I18N.zh.tagLearning,
-    travel: I18N.zh.tagTravel
-  }
-};
-
 const PLAN_HEATMAP_COLORS = ["var(--event-plan-1)", "var(--event-plan-2)", "var(--event-plan-3)"];
+const appConfig = getConfig();
 
 const state = {
-  view: "year",
+  view: appConfig.defaults.view,
   currentDate: new Date(),
   filterTag: "all",
   filterStatus: "all",
-  language: DEFAULT_LANGUAGE,
-  season: DEFAULT_SEASON,
+  language: appConfig.defaults.language || DEFAULT_LANGUAGE,
+  season: appConfig.defaults.season || DEFAULT_SEASON,
   statusKey: "statusReady",
-  isReadOnly: true,
-  yearView: "cards",
+  isReadOnly: false,
+  yearView: appConfig.defaults.yearView,
   todayCacheKey: "",
   todayTasks: [],
   quotes: [],
@@ -100,6 +99,7 @@ const state = {
     week: null,
     day: null
   },
+  storedTasks: [],
   tasks: []
 };
 
@@ -109,11 +109,14 @@ async function init() {
   cacheElements();
   state.language = loadLanguage();
   state.season = loadSeason();
+  renderConfiguredContent();
+  cacheDynamicElements();
   bindUI();
   applySeason(state.season);
   applyTheme(ui.themeToggle ? ui.themeToggle.getAttribute("value") || "light" : "light");
   setView(state.view);
   setYearView(state.yearView);
+  state.storedTasks = loadTasks();
   await loadScheduleDataForCurrentDate();
   applyLanguage(false);
   renderAll();
@@ -121,7 +124,12 @@ async function init() {
 }
 
 function cacheElements() {
-  ui.viewButtons = document.querySelectorAll(".view-switch .view-btn");
+  ui.brandMark = document.getElementById("brandMark");
+  ui.brandEyebrow = document.getElementById("brandEyebrow");
+  ui.zoomNav = document.getElementById("zoomNav");
+  ui.zoomSlider = document.getElementById("zoomSlider");
+  ui.zoomBreadcrumb = document.getElementById("zoomBreadcrumb");
+  ui.zoomLabels = document.querySelectorAll(".zoom-labels span");
   ui.viewPanels = document.querySelectorAll(".view-panel");
   ui.rangeLabel = document.getElementById("rangeLabel");
   ui.yearGrid = document.getElementById("yearGrid");
@@ -129,13 +137,6 @@ function cacheElements() {
   ui.monthGrid = document.getElementById("monthGrid");
   ui.weekGrid = document.getElementById("weekGrid");
   ui.dayGrid = document.getElementById("dayGrid");
-  ui.progressRing = document.getElementById("progressRing");
-  ui.progressBarFill = document.getElementById("progressBarFill");
-  ui.statCompletion = document.getElementById("statCompletion");
-  ui.statTotal = document.getElementById("statTotal");
-  ui.statToday = document.getElementById("statToday");
-  ui.statTopTag = document.getElementById("statTopTag");
-  ui.statWeekRange = document.getElementById("statWeekRange");
   ui.todayBadge = document.getElementById("todayBadge");
   ui.todayList = document.getElementById("todayList");
   ui.todayEmpty = document.getElementById("todayEmpty");
@@ -143,17 +144,13 @@ function cacheElements() {
   ui.todayQuoteSource = document.getElementById("todayQuoteSource");
   ui.todayQuoteButton = document.getElementById("todayQuoteButton");
   ui.yearProgressValue = document.getElementById("yearProgressValue");
-  ui.yearProgressFill = document.getElementById("yearProgressFill");
   ui.yearProgressBadge = document.getElementById("yearProgressBadge");
-  ui.nextHolidayTitle = document.getElementById("nextHolidayTitle");
-  ui.nextHolidayMeta = document.getElementById("nextHolidayMeta");
-  ui.nextPlanTitle = document.getElementById("nextPlanTitle");
-  ui.nextPlanMeta = document.getElementById("nextPlanMeta");
-  ui.statusMessage = document.getElementById("statusMessage");
-  ui.importButton = document.getElementById("importButton");
-  ui.exportButton = document.getElementById("exportButton");
-  ui.exportImageButton = document.getElementById("exportImageButton");
-  ui.importFile = document.getElementById("importFile");
+  ui.recentItemTitle = document.getElementById("recentItemTitle");
+  ui.recentItemMeta = document.getElementById("recentItemMeta");
+  ui.yearTimeline = document.getElementById("yearTimeline");
+  ui.yearTimelineProgress = document.getElementById("yearTimelineProgress");
+  ui.yearTimelineNow = document.getElementById("yearTimelineNow");
+  ui.yearTimelineEvents = document.getElementById("yearTimelineEvents");
   ui.modal = document.getElementById("taskModal");
   ui.modalTitle = document.getElementById("modalTitle");
   ui.taskForm = document.getElementById("taskForm");
@@ -183,13 +180,171 @@ function cacheElements() {
   ui.themeToggle = document.getElementById("themeToggle");
 }
 
-function bindUI() {
-  ui.viewButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      setView(button.dataset.view);
-      renderAll();
-    });
+function cacheDynamicElements() {
+  ui.zoomLabels = document.querySelectorAll(".zoom-labels span");
+  ui.seasonButtons = document.querySelectorAll(".season-option");
+}
+
+function renderConfiguredContent() {
+  renderBrandConfig();
+  renderZoomLabels();
+  renderFilterChips();
+  renderTaskSelectOptions();
+}
+
+function renderBrandConfig() {
+  if (ui.brandMark) {
+    ui.brandMark.textContent = `\u26a1${appConfig.brand.mark}`;
+  }
+  if (ui.brandEyebrow) {
+    ui.brandEyebrow.textContent = appConfig.brand.eyebrow;
+  }
+}
+
+const ZOOM_LEVELS = ["year", "month", "week", "day"];
+
+function renderZoomLabels() {
+  if (!ui.zoomLabels) {
+    return;
+  }
+  ui.zoomLabels.forEach((label) => {
+    const key = label.dataset.i18n;
+    if (key) {
+      label.textContent = getText(key, state.language);
+    }
   });
+  syncZoomUI();
+}
+
+function syncZoomUI() {
+  const index = ZOOM_LEVELS.indexOf(state.view);
+  if (ui.zoomSlider) {
+    ui.zoomSlider.value = index;
+  }
+  if (ui.zoomLabels) {
+    ui.zoomLabels.forEach((label) => {
+      label.classList.toggle("is-active", Number(label.dataset.zoom) === index);
+    });
+  }
+  updateBreadcrumb();
+}
+
+function updateBreadcrumb() {
+  if (!ui.zoomBreadcrumb) {
+    return;
+  }
+  const date = state.currentDate;
+  const primary = state.language;
+  const crumbs = [];
+
+  // Year crumb (always present)
+  crumbs.push({ level: "year", label: String(date.getFullYear()) });
+
+  // Month crumb (month level and below)
+  if (state.view !== "year") {
+    crumbs.push({ level: "month", label: getMonthName(date.getMonth(), primary) });
+  }
+
+  // Week crumb (week level and below)
+  if (state.view === "week" || state.view === "day") {
+    crumbs.push({ level: "week", label: `W${getWeekIndex(date)}` });
+  }
+
+  // Day crumb (day level only)
+  if (state.view === "day") {
+    const dayLabel = `${getDayName(date.getDay(), primary)} ${date.getDate()}`;
+    crumbs.push({ level: "day", label: dayLabel });
+  }
+
+  ui.zoomBreadcrumb.innerHTML = crumbs
+    .map((crumb, i) => {
+      const isCurrent = i === crumbs.length - 1;
+      const sep = i > 0 ? '<span class="crumb-sep">›</span>' : "";
+      const cls = isCurrent ? "crumb is-current" : "crumb";
+      return `${sep}<span class="${cls}" data-zoom-level="${crumb.level}">${escapeHtml(crumb.label)}</span>`;
+    })
+    .join("");
+}
+
+function renderFilterChips() {
+  if (!appConfig.modules.filters) {
+    return;
+  }
+  const tagRow = document.querySelector('[data-filter-group="tag"]');
+  const statusRow = document.querySelector('[data-filter-group="status"]');
+
+  if (tagRow) {
+    const tagItems = [{ id: "all", labelKey: "all" }, ...getEnabledTags()];
+    tagRow.innerHTML = tagItems.map((item) => renderChip(item, state.filterTag)).join("");
+  }
+
+  if (statusRow) {
+    statusRow.innerHTML = getEnabledStatusFilters().map((item) => renderChip(item, state.filterStatus)).join("");
+  }
+}
+
+function renderChip(item, activeValue) {
+  const activeClass = item.id === activeValue ? " is-active" : "";
+  return `<button class="chip${activeClass}" data-filter-value="${item.id}" data-i18n="${item.labelKey}" type="button">${getText(item.labelKey, state.language)}</button>`;
+}
+
+function renderTaskSelectOptions() {
+  renderSelectOptions(ui.taskPriority, getEnabledPriorities(), appConfig.defaults.newTask.priority);
+  renderSelectOptions(ui.taskTag, getEnabledTags(), appConfig.defaults.newTask.tag);
+}
+
+function renderSelectOptions(select, items, defaultValue) {
+  if (!select) {
+    return;
+  }
+
+  select.innerHTML = items
+    .map((item) => {
+      const selected = item.id === defaultValue ? " selected" : "";
+      return `<option value="${item.id}" data-i18n-option="${item.labelKey}"${selected}>${getText(item.labelKey, state.language)}</option>`;
+    })
+    .join("");
+}
+
+function bindUI() {
+  // Zoom slider
+  if (ui.zoomSlider) {
+    ui.zoomSlider.addEventListener("input", () => {
+      const level = ZOOM_LEVELS[Number(ui.zoomSlider.value)];
+      if (level) {
+        setView(level);
+        renderAll();
+      }
+    });
+  }
+
+  // Zoom label clicks
+  if (ui.zoomLabels) {
+    ui.zoomLabels.forEach((label) => {
+      label.addEventListener("click", () => {
+        const level = ZOOM_LEVELS[Number(label.dataset.zoom)];
+        if (level) {
+          setView(level);
+          renderAll();
+        }
+      });
+    });
+  }
+
+  // Breadcrumb clicks
+  if (ui.zoomBreadcrumb) {
+    ui.zoomBreadcrumb.addEventListener("click", (event) => {
+      const crumb = event.target.closest(".crumb");
+      if (!crumb || crumb.classList.contains("is-current")) {
+        return;
+      }
+      const level = crumb.dataset.zoomLevel;
+      if (level && ZOOM_LEVELS.includes(level)) {
+        setView(level);
+        renderAll();
+      }
+    });
+  }
 
   if (ui.yearViewButtons && ui.yearViewButtons.length) {
     ui.yearViewButtons.forEach((button) => {
@@ -205,6 +360,9 @@ function bindUI() {
 
   document.querySelector('[data-action="today"]').addEventListener("click", () => {
     updateCurrentDate(new Date());
+    if (state.view === "year") {
+      spotlightTodayCard();
+    }
   });
 
   document.querySelector('[data-action="add"]').addEventListener("click", () => {
@@ -215,26 +373,28 @@ function bindUI() {
     openModal();
   });
 
-  document.querySelectorAll(".chip-row").forEach((row) => {
-    row.addEventListener("click", (event) => {
-      const chip = event.target.closest(".chip");
-      if (!chip) {
-        return;
-      }
-      row.querySelectorAll(".chip").forEach((item) => {
-        item.classList.toggle("is-active", item === chip);
+  if (appConfig.modules.filters) {
+    document.querySelectorAll(".chip-row").forEach((row) => {
+      row.addEventListener("click", (event) => {
+        const chip = event.target.closest(".chip");
+        if (!chip) {
+          return;
+        }
+        row.querySelectorAll(".chip").forEach((item) => {
+          item.classList.toggle("is-active", item === chip);
+        });
+        const group = row.dataset.filterGroup;
+        const value = chip.dataset.filterValue;
+        if (group === "tag") {
+          state.filterTag = value;
+        }
+        if (group === "status") {
+          state.filterStatus = value;
+        }
+        renderAll();
       });
-      const group = row.dataset.filterGroup;
-      const value = chip.dataset.filterValue;
-      if (group === "tag") {
-        state.filterTag = value;
-      }
-      if (group === "status") {
-        state.filterStatus = value;
-      }
-      renderAll();
     });
-  });
+  }
 
   ui.yearGrid.addEventListener("click", (event) => {
     const card = event.target.closest(".month-card");
@@ -256,11 +416,37 @@ function bindUI() {
     }
     const dateValue = day.dataset.date;
     if (dateValue) {
-      updateCurrentDate(parseDate(dateValue), "day");
+      updateCurrentDate(parseDate(dateValue), "week");
+    }
+  });
+
+  ui.weekGrid.addEventListener("click", (event) => {
+    if (event.target.closest("[data-task-id]")) {
+      return;
+    }
+    const header = event.target.closest(".day-header");
+    if (!header) {
+      return;
+    }
+    const column = header.closest(".day-column");
+    if (column && column.dataset.date) {
+      updateCurrentDate(parseDate(column.dataset.date), "day");
     }
   });
 
   document.addEventListener("click", (event) => {
+    const checkBtn = event.target.closest(".task-check");
+    if (checkBtn) {
+      event.stopPropagation();
+      const taskEl = checkBtn.closest("[data-task-id]") || checkBtn.parentElement;
+      const taskId = checkBtn.dataset.taskId || (taskEl && taskEl.dataset.taskId);
+      if (taskId) {
+        checkBtn.classList.add("just-checked");
+        setTimeout(() => checkBtn.classList.remove("just-checked"), 300);
+        toggleTaskCompletion(taskId);
+      }
+      return;
+    }
     const taskTarget = event.target.closest("[data-task-id]");
     if (!taskTarget) {
       return;
@@ -271,26 +457,6 @@ function bindUI() {
     }
   });
 
-  if (ui.importButton && ui.importFile) {
-    ui.importButton.addEventListener("click", () => {
-      if (state.isReadOnly) {
-        setStatusKey("statusReadOnly");
-        return;
-      }
-      ui.importFile.click();
-    });
-    ui.importFile.addEventListener("change", handleImport);
-  }
-
-  if (ui.exportButton) {
-    ui.exportButton.addEventListener("click", exportTasks);
-  }
-
-  if (ui.exportImageButton) {
-    ui.exportImageButton.addEventListener("click", () => {
-      setStatusKey("statusImagePlaceholder");
-    });
-  }
 
   if (ui.todayQuoteButton) {
     ui.todayQuoteButton.addEventListener("click", () => {
@@ -322,6 +488,7 @@ function bindUI() {
       setStatusKey("statusReadOnly");
       return;
     }
+    deleteTaskById(ui.taskId.value);
   });
 
   if (ui.langToggle) {
@@ -365,6 +532,92 @@ function bindUI() {
       applyTheme(event.detail);
     });
   }
+
+  document.addEventListener("keydown", (event) => {
+    // Skip shortcuts when typing in inputs
+    const tag = event.target.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || event.target.isContentEditable) {
+      if (event.key === "Escape") {
+        event.target.blur();
+      }
+      return;
+    }
+
+    // Modal is open — only Escape applies
+    if (ui.modal.classList.contains("is-open")) {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+      return;
+    }
+
+    switch (event.key) {
+      case "n":
+      case "N":
+        if (!event.ctrlKey && !event.metaKey) {
+          event.preventDefault();
+          if (state.isReadOnly) {
+            showToast(getText("statusReadOnly", state.language), { type: "error" });
+          } else {
+            openModal();
+          }
+        }
+        break;
+      case "t":
+      case "T":
+        if (!event.ctrlKey && !event.metaKey) {
+          event.preventDefault();
+          updateCurrentDate(new Date());
+        }
+        break;
+      case "=":
+      case "+":
+        event.preventDefault();
+        zoomIn();
+        break;
+      case "-":
+        event.preventDefault();
+        zoomOut();
+        break;
+      case "ArrowLeft":
+        event.preventDefault();
+        shiftRange(-1);
+        break;
+      case "ArrowRight":
+        event.preventDefault();
+        shiftRange(1);
+        break;
+      case "?":
+        event.preventDefault();
+        toggleShortcutHint();
+        break;
+      default:
+        break;
+    }
+  });
+}
+
+let shortcutHintEl = null;
+
+function toggleShortcutHint() {
+  if (!shortcutHintEl) {
+    shortcutHintEl = document.createElement("div");
+    shortcutHintEl.className = "shortcut-hint";
+    shortcutHintEl.innerHTML = `
+      <div><kbd>N</kbd> ${getText("shortcutAdd", state.language)}</div>
+      <div><kbd>T</kbd> ${getText("shortcutToday", state.language)}</div>
+      <div><kbd>+</kbd> / <kbd>-</kbd> ${getText("shortcutZoom", state.language)}</div>
+      <div><kbd>←</kbd> <kbd>→</kbd> ${getText("shortcutNav", state.language)}</div>
+      <div><kbd>Esc</kbd> ${getText("shortcutClose", state.language)}</div>
+    `;
+    document.body.appendChild(shortcutHintEl);
+    requestAnimationFrame(() => shortcutHintEl.classList.add("is-visible"));
+  } else {
+    const el = shortcutHintEl;
+    el.classList.remove("is-visible");
+    setTimeout(() => { el.remove(); }, 200);
+    shortcutHintEl = null;
+  }
 }
 
 function applyLanguage(shouldRender = true) {
@@ -372,6 +625,11 @@ function applyLanguage(shouldRender = true) {
   const secondary = getSecondaryLanguage(primary);
 
   document.documentElement.setAttribute("lang", primary);
+  renderBrandConfig();
+  renderZoomLabels();
+  renderFilterChips();
+  renderTaskSelectOptions();
+  cacheDynamicElements();
 
   if (ui.langToggle) {
     ui.langToggle.innerHTML = formatBilingual(LANG_NAMES[primary], LANG_NAMES[secondary], primary);
@@ -418,7 +676,6 @@ function applyLanguage(shouldRender = true) {
   }
 
   updateModalTitle();
-  refreshStatus();
 
   if (shouldRender) {
     renderAll();
@@ -504,22 +761,10 @@ function updateModalTitle() {
 
 function setStatusKey(key) {
   state.statusKey = key;
-  const primary = state.language;
-  const secondary = getSecondaryLanguage(primary);
-  const primaryText = getText(key, primary);
-  const secondaryText = getText(key, secondary);
-  if (!primaryText || !secondaryText) {
-    setStatus(primaryText || "");
-    return;
+  const message = getText(key, state.language);
+  if (message) {
+    showToast(message, { type: "error" });
   }
-  setStatus(formatBilingual(primaryText, secondaryText, primary));
-}
-
-function refreshStatus() {
-  if (!state.statusKey) {
-    return;
-  }
-  setStatusKey(state.statusKey);
 }
 
 async function loadScheduleDataForCurrentDate() {
@@ -536,23 +781,26 @@ async function updateCurrentDate(nextDate, nextView) {
 }
 
 function getMonthItems() {
-  return state.data.month && Array.isArray(state.data.month.items) ? state.data.month.items : [];
+  const baseItems = state.data.month && Array.isArray(state.data.month.items) ? state.data.month.items : [];
+  return mergeTasks(baseItems, getTasksForMonth(state.storedTasks, state.currentDate));
 }
 
 function getWeekItems() {
-  return state.data.week && Array.isArray(state.data.week.items) ? state.data.week.items : [];
+  const baseItems = state.data.week && Array.isArray(state.data.week.items) ? state.data.week.items : [];
+  return mergeTasks(baseItems, getTasksForWeek(state.storedTasks, state.currentDate));
 }
 
 function getDayItems() {
-  if (!state.data.day || !Array.isArray(state.data.day.days)) {
-    return [];
-  }
   const dateKey = formatDate(state.currentDate);
+  const storedItems = getTasksForDate(state.storedTasks, dateKey);
+  if (!state.data.day || !Array.isArray(state.data.day.days)) {
+    return storedItems;
+  }
   const entry = state.data.day.days.find((day) => day.date === dateKey);
   if (entry && Array.isArray(entry.items)) {
-    return entry.items;
+    return mergeTasks(entry.items, storedItems);
   }
-  return [];
+  return storedItems;
 }
 
 function getActiveItems() {
@@ -568,18 +816,6 @@ function getActiveItems() {
   return [];
 }
 
-function getStatsItems() {
-  if (state.view === "year") {
-    return state.data.year && Array.isArray(state.data.year.plans) ? state.data.year.plans : [];
-  }
-  if (state.view === "month") {
-    return getMonthItems();
-  }
-  if (state.view === "week") {
-    return getWeekItems();
-  }
-  return getDayItems();
-}
 
 function renderAll() {
   renderYearView(state.data.year);
@@ -589,19 +825,16 @@ function renderAll() {
   renderWeekView(applyFilters(getWeekItems()));
   renderDayView(applyFilters(getDayItems()));
   updateRangeLabel();
-  const statsItems = applyFilters(getStatsItems());
-  updateStats(statsItems);
+  syncZoomUI();
   state.tasks = getActiveItems();
 }
 
 function setView(view) {
   state.view = view;
-  ui.viewButtons.forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.view === view);
-  });
   ui.viewPanels.forEach((panel) => {
     panel.classList.toggle("is-active", panel.dataset.viewPanel === view);
   });
+  syncZoomUI();
 }
 
 function setYearView(view) {
@@ -635,6 +868,22 @@ function shiftRange(amount) {
   updateCurrentDate(next);
 }
 
+function zoomIn() {
+  const index = ZOOM_LEVELS.indexOf(state.view);
+  if (index < ZOOM_LEVELS.length - 1) {
+    setView(ZOOM_LEVELS[index + 1]);
+    renderAll();
+  }
+}
+
+function zoomOut() {
+  const index = ZOOM_LEVELS.indexOf(state.view);
+  if (index > 0) {
+    setView(ZOOM_LEVELS[index - 1]);
+    renderAll();
+  }
+}
+
 function updateRangeLabel() {
   const date = state.currentDate;
   const primary = state.language;
@@ -644,37 +893,6 @@ function updateRangeLabel() {
   ui.rangeLabel.innerHTML = formatBilingual(primaryText, secondaryText, primary);
 }
 
-function updateStats(tasks) {
-  const total = tasks.length;
-  const done = tasks.filter((task) => task.completed).length;
-  const ratio = total ? Math.round((done / total) * 100) : 0;
-  const todayKey = formatDate(state.currentDate);
-  const openToday = tasks.filter((task) => task.date === todayKey && !task.completed).length;
-  const primary = state.language;
-  const secondary = getSecondaryLanguage(primary);
-  if (ui.statCompletion) {
-    ui.statCompletion.textContent = `${ratio}%`;
-  }
-  if (ui.statTotal) {
-    ui.statTotal.textContent = total;
-  }
-  if (ui.statToday) {
-    ui.statToday.textContent = openToday;
-  }
-  if (ui.statTopTag) {
-    ui.statTopTag.innerHTML = formatBilingual(getTopTag(tasks, primary), getTopTag(tasks, secondary), primary);
-  }
-  if (ui.progressBarFill) {
-    ui.progressBarFill.style.width = `${ratio}%`;
-  }
-  if (ui.progressRing) {
-    ui.progressRing.style.background = `conic-gradient(var(--accent) ${ratio * 3.6}deg, var(--progress-ring-track) 0deg)`;
-  }
-  const weekStart = getWeekStart(state.currentDate);
-  if (ui.statWeekRange) {
-    ui.statWeekRange.innerHTML = formatBilingual(formatWeekRangeLabel(weekStart, primary), formatWeekRangeLabel(weekStart, secondary), primary);
-  }
-}
 
 function renderTodayPanel() {
   if (!ui.todayList || !ui.todayEmpty) {
@@ -716,11 +934,13 @@ function renderTodayItems(items) {
   const sorted = [...tasks].sort((a, b) => getTimeSortValue(a) - getTimeSortValue(b));
   ui.todayList.innerHTML = sorted
     .map((task) => {
-      const titlePrimary = task.title || "-";
-      const titleSecondary = task.titleAlt || task.title || "-";
-      const timeLabel = formatTimeRange(task);
+      const titlePrimary = escapeHtml(task.title || "-");
+      const titleSecondary = escapeHtml(task.titleAlt || task.title || "-");
+      const timeLabel = escapeHtml(formatTimeRange(task));
       const doneClass = task.completed ? " is-done" : "";
-      return `<li class="today-item${doneClass}"><span class="today-time">${timeLabel}</span><span class="today-title">${formatBilingual(titlePrimary, titleSecondary, primary)}</span></li>`;
+      const checkedClass = task.completed ? " is-checked" : "";
+      const taskIdAttr = task.id ? ` data-task-id="${escapeAttribute(task.id)}"` : "";
+      return `<li class="today-item${doneClass}"${taskIdAttr}><button class="task-check${checkedClass}" data-task-id="${escapeAttribute(task.id)}" type="button" aria-label="Toggle complete"></button><span class="today-time">${timeLabel}</span><span class="today-title">${formatBilingual(titlePrimary, titleSecondary, primary)}</span></li>`;
     })
     .join("");
 }
@@ -751,9 +971,10 @@ async function loadTodayTasks(today) {
   }
   const normalized = await loadDayData(today);
   const items = getDayItemsFromData(normalized, todayKey);
+  const storedItems = getTasksForDate(state.storedTasks, todayKey);
   state.todayCacheKey = todayKey;
-  state.todayTasks = items;
-  return items;
+  state.todayTasks = mergeTasks(items, storedItems);
+  return state.todayTasks;
 }
 
 function getDayItemsFromData(dayData, dateKey) {
@@ -906,7 +1127,7 @@ function renderYearView(yearData) {
 }
 
 function renderYearOverview(yearData) {
-  if (!ui.yearProgressValue && !ui.nextHolidayTitle && !ui.nextPlanTitle) {
+  if (!ui.yearProgressValue && !ui.recentItemTitle && !ui.yearTimelineEvents) {
     return;
   }
   const year = yearData && yearData.year ? yearData.year : state.currentDate.getFullYear();
@@ -921,8 +1142,11 @@ function renderYearOverview(yearData) {
   if (ui.yearProgressValue) {
     ui.yearProgressValue.textContent = `${ratio}%`;
   }
-  if (ui.yearProgressFill) {
-    ui.yearProgressFill.style.width = `${ratio}%`;
+  if (ui.yearTimelineProgress) {
+    ui.yearTimelineProgress.style.width = `${ratio}%`;
+  }
+  if (ui.yearTimelineNow) {
+    ui.yearTimelineNow.style.left = `${ratio}%`;
   }
   if (ui.yearProgressBadge) {
     ui.yearProgressBadge.textContent = `${dayIndex}/${totalDays}`;
@@ -930,40 +1154,83 @@ function renderYearOverview(yearData) {
 
   const holidays = yearData && Array.isArray(yearData.holidays) ? yearData.holidays : [];
   const plans = yearData && Array.isArray(yearData.plans) ? yearData.plans : [];
-  const nextHoliday = getNextHoliday(holidays, today);
-  const nextPlan = getNextPlan(plans, year, today);
+  const recentItem = getRecentYearItem(plans, holidays, year, today);
+  const timelineEvents = getYearTimelineEvents(plans, holidays, year, today);
 
-  updateOverviewCard(nextHoliday, ui.nextHolidayTitle, ui.nextHolidayMeta, "noHolidays");
-  updateOverviewCard(nextPlan, ui.nextPlanTitle, ui.nextPlanMeta, "noPlans");
+  updateRecentItem(recentItem);
+  renderYearTimelineEvents(timelineEvents, yearStart, totalDays);
 }
 
-function updateOverviewCard(item, titleEl, metaEl, emptyKey) {
-  if (!titleEl || !metaEl) {
+function updateRecentItem(item) {
+  if (!ui.recentItemTitle || !ui.recentItemMeta) {
     return;
   }
   const primary = state.language;
   const secondary = getSecondaryLanguage(primary);
 
   if (!item) {
-    const primaryText = getText(emptyKey, primary);
-    const secondaryText = getText(emptyKey, secondary);
-    titleEl.innerHTML = formatBilingual(primaryText, secondaryText, primary);
-    metaEl.textContent = "-";
+    const primaryText = getText("noPlans", primary);
+    const secondaryText = getText("noPlans", secondary);
+    ui.recentItemTitle.innerHTML = formatBilingual(primaryText, secondaryText, primary);
+    ui.recentItemMeta.textContent = "-";
     return;
   }
 
-  const titlePrimary = item.title || "-";
-  const titleSecondary = item.titleAlt || item.title || "-";
-  titleEl.innerHTML = formatBilingual(titlePrimary, titleSecondary, primary);
+  const titlePrimary = escapeHtml(item.title || "-");
+  const titleSecondary = escapeHtml(item.titleAlt || item.title || "-");
+  ui.recentItemTitle.innerHTML = formatBilingual(titlePrimary, titleSecondary, primary);
 
   const datePrimary = formatShortDate(item.start, primary);
   const dateSecondary = formatShortDate(item.start, secondary);
   const metaPrimary = item.isOngoing ? getText("labelInProgress", primary) : formatDayCount(item.daysUntil, primary);
   const metaSecondary = item.isOngoing ? getText("labelInProgress", secondary) : formatDayCount(item.daysUntil, secondary);
-  metaEl.innerHTML = formatBilingual(`${datePrimary} \u00b7 ${metaPrimary}`, `${dateSecondary} \u00b7 ${metaSecondary}`, primary);
+  ui.recentItemMeta.innerHTML = formatBilingual(`${datePrimary} \u00b7 ${metaPrimary}`, `${dateSecondary} \u00b7 ${metaSecondary}`, primary);
 }
 
-function getNextHoliday(holidays, referenceDate) {
+function getRecentYearItem(plans, holidays, year, referenceDate) {
+  const items = [...getUpcomingPlans(plans, year, referenceDate), ...getUpcomingHolidays(holidays, referenceDate)];
+  if (!items.length) {
+    return null;
+  }
+  items.sort(sortUpcomingItems);
+  return items[0];
+}
+
+function getYearTimelineEvents(plans, holidays, year, referenceDate) {
+  const items = [...getUpcomingPlans(plans, year, referenceDate), ...getUpcomingHolidays(holidays, referenceDate)];
+  return items.sort(sortUpcomingItems).slice(0, 8);
+}
+
+function sortUpcomingItems(a, b) {
+  if (a.isOngoing !== b.isOngoing) {
+    return a.isOngoing ? -1 : 1;
+  }
+  return a.start.getTime() - b.start.getTime();
+}
+
+function renderYearTimelineEvents(events, yearStart, totalDays) {
+  if (!ui.yearTimelineEvents) {
+    return;
+  }
+  ui.yearTimelineEvents.innerHTML = events
+    .map((event, index) => {
+      const dayOffset = Math.min(Math.max(diffInDays(yearStart, event.start), 0), totalDays - 1);
+      const position = totalDays ? (dayOffset / totalDays) * 100 : 0;
+      const side = index % 2 === 0 ? "top" : "bottom";
+      const title = event.titleAlt && state.language === "zh" ? event.titleAlt : event.title;
+      const safeTitle = escapeHtml(title);
+      const safeTitleAttr = escapeAttribute(title);
+      return `
+        <button class="year-timeline-event ${event.kind} ${event.tone} ${side}" style="left: ${position}%;" type="button" title="${safeTitleAttr}">
+          <span class="year-timeline-dot"></span>
+          <span class="year-timeline-label">${safeTitle}</span>
+        </button>
+      `;
+    })
+    .join("");
+}
+
+function getUpcomingHolidays(holidays, referenceDate) {
   const today = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
   const candidates = [];
   holidays
@@ -980,6 +1247,8 @@ function getNextHoliday(holidays, referenceDate) {
         candidates.push({
           title: holiday.name || "",
           titleAlt: holiday.nameAlt || holiday.name || "",
+          kind: "holiday",
+          tone: holiday.type === "adjustment" ? "adjustment" : "holiday",
           start: range.start,
           daysUntil: Math.max(0, daysUntilStart),
           isOngoing
@@ -987,24 +1256,13 @@ function getNextHoliday(holidays, referenceDate) {
       });
     });
 
-  if (!candidates.length) {
-    return null;
-  }
-
-  candidates.sort((a, b) => {
-    if (a.isOngoing !== b.isOngoing) {
-      return a.isOngoing ? -1 : 1;
-    }
-    return a.start.getTime() - b.start.getTime();
-  });
-
-  return candidates[0];
+  return candidates;
 }
 
-function getNextPlan(plans, year, referenceDate) {
+function getUpcomingPlans(plans, year, referenceDate) {
   const today = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
   const candidates = [];
-  plans.forEach((plan) => {
+  plans.forEach((plan, index) => {
     const ranges = getPlanRanges(plan, year);
     ranges.forEach((range) => {
       const daysUntilEnd = diffInDays(today, range.end);
@@ -1016,6 +1274,8 @@ function getNextPlan(plans, year, referenceDate) {
       candidates.push({
         title: plan.title || "",
         titleAlt: plan.titleAlt || plan.title || "",
+        kind: "plan",
+        tone: getPlanTimelineTone(plan, index),
         start: range.start,
         daysUntil: Math.max(0, daysUntilStart),
         isOngoing
@@ -1023,18 +1283,20 @@ function getNextPlan(plans, year, referenceDate) {
     });
   });
 
-  if (!candidates.length) {
-    return null;
+  return candidates;
+}
+
+function getPlanTimelineTone(plan, index) {
+  if (plan.priority === "high") {
+    return "plan-3";
   }
-
-  candidates.sort((a, b) => {
-    if (a.isOngoing !== b.isOngoing) {
-      return a.isOngoing ? -1 : 1;
-    }
-    return a.start.getTime() - b.start.getTime();
-  });
-
-  return candidates[0];
+  if (plan.priority === "med") {
+    return "plan-2";
+  }
+  if (plan.priority === "low") {
+    return "plan-1";
+  }
+  return `plan-${(index % 3) + 1}`;
 }
 
 function renderYearCards(year, primary, secondary, plansByMonth, holidaysByMonth) {
@@ -1087,6 +1349,33 @@ function renderYearCards(year, primary, secondary, plansByMonth, holidaysByMonth
     `;
     ui.yearGrid.appendChild(card);
   }
+}
+
+function spotlightTodayCard() {
+  if (state.yearView === "heatmap") {
+    const todayCell = ui.yearHeatmapGrid && ui.yearHeatmapGrid.querySelector(".heatmap-cell.is-today");
+    if (todayCell) {
+      todayCell.scrollIntoView({ behavior: "smooth", block: "center" });
+      todayCell.classList.add("is-spotlight");
+      todayCell.addEventListener("animationend", () => {
+        todayCell.classList.remove("is-spotlight");
+      }, { once: true });
+    }
+    return;
+  }
+  if (!ui.yearGrid) {
+    return;
+  }
+  const todayMonth = new Date().getMonth();
+  const card = ui.yearGrid.querySelector(`[data-month="${todayMonth}"]`);
+  if (!card) {
+    return;
+  }
+  card.scrollIntoView({ behavior: "smooth", block: "center" });
+  card.classList.add("is-spotlight");
+  card.addEventListener("animationend", () => {
+    card.classList.remove("is-spotlight");
+  }, { once: true });
 }
 
 function renderYearHeatmap(year, primary, secondary, plans, holidays) {
@@ -1365,7 +1654,7 @@ function buildHeatmapLabel(date, event, primary, secondary) {
   if (!event) {
     return `<span class="heatmap-label-date">${dateMarkup}</span>`;
   }
-  const titleMarkup = formatBilingual(event.title, event.titleAlt, primary);
+  const titleMarkup = formatBilingual(escapeHtml(event.title), escapeHtml(event.titleAlt), primary);
   const typeMarkup = formatBilingual(getEventTypeLabel(event.type, primary), getEventTypeLabel(event.type, secondary), primary);
   return `
     <span class="heatmap-label-date">${dateMarkup}</span>
@@ -1450,6 +1739,7 @@ function buildScheduleGrid(container, days, tasks) {
   days.forEach((day) => {
     const column = document.createElement("div");
     column.className = "day-column";
+    column.dataset.date = formatDate(day);
     const header = document.createElement("div");
     header.className = "day-header";
     header.innerHTML = formatBilingual(formatDayHeader(day, primary), formatDayHeader(day, secondary), primary);
@@ -1476,10 +1766,12 @@ function buildScheduleGrid(container, days, tasks) {
       }
       block.style.top = `${top}px`;
       block.style.height = `${height}px`;
-      const titleMarkup = task.titleAlt ? formatBilingual(task.title, task.titleAlt, primary) : task.title;
+      const titleMarkup = task.titleAlt ? formatBilingual(escapeHtml(task.title), escapeHtml(task.titleAlt), primary) : escapeHtml(task.title);
+      const checkedClass = task.completed ? " is-checked" : "";
       block.innerHTML = `
+        <button class="task-check${checkedClass}" data-task-id="${escapeAttribute(task.id)}" type="button" aria-label="Toggle complete"></button>
         <div class="task-title">${titleMarkup}</div>
-        <div class="task-time">${task.start} - ${task.end}</div>
+        <div class="task-time">${escapeHtml(task.start)} - ${escapeHtml(task.end)}</div>
       `;
       track.appendChild(block);
     });
@@ -1492,11 +1784,13 @@ function buildScheduleGrid(container, days, tasks) {
 
 function renderTaskPill(task) {
   const priority = task.priority || "med";
-  const titleMarkup = task.titleAlt ? formatBilingual(task.title, task.titleAlt, state.language) : task.title;
-  const taskIdAttr = task.id ? ` data-task-id="${task.id}"` : "";
+  const titleMarkup = task.titleAlt ? formatBilingual(escapeHtml(task.title), escapeHtml(task.titleAlt), state.language) : escapeHtml(task.title);
+  const taskIdAttr = task.id ? ` data-task-id="${escapeAttribute(task.id)}"` : "";
+  const checkedClass = task.completed ? " is-checked" : "";
+  const doneClass = task.completed ? " is-done" : "";
   return `
-    <div class="task-pill priority-${priority}"${taskIdAttr}>
-      <span class="task-dot"></span>
+    <div class="task-pill priority-${priority}${doneClass}"${taskIdAttr}>
+      <button class="task-check${checkedClass}" data-task-id="${escapeAttribute(task.id)}" type="button" aria-label="Toggle complete"></button>
       <span class="task-label">${titleMarkup}</span>
     </div>
   `;
@@ -1519,18 +1813,47 @@ function applyFilters(tasks) {
   });
 }
 
+function toggleTaskCompletion(taskId) {
+  if (!taskId || state.isReadOnly) {
+    return;
+  }
+  const storedIndex = state.storedTasks.findIndex((t) => t.id === taskId);
+  if (storedIndex >= 0) {
+    state.storedTasks[storedIndex].completed = !state.storedTasks[storedIndex].completed;
+    saveTasks(state.storedTasks);
+    invalidateTodayCache();
+    const key = state.storedTasks[storedIndex].completed ? "toastTaskCompleted" : "toastTaskReopened";
+    showToast(getText(key, state.language), { type: "success" });
+    renderAll();
+    return;
+  }
+  // For JSON-source tasks, we store a copy in storedTasks with toggled state
+  const allItems = [...(state.todayTasks || []), ...(state.tasks || [])];
+  const task = allItems.find((t) => t.id === taskId);
+  if (task) {
+    const copy = normalizeTask({ ...task, completed: !task.completed, source: "user" });
+    state.storedTasks.unshift(copy);
+    state.storedTasks = sortTasksByDateTime(state.storedTasks);
+    saveTasks(state.storedTasks);
+    invalidateTodayCache();
+    const key = copy.completed ? "toastTaskCompleted" : "toastTaskReopened";
+    showToast(getText(key, state.language), { type: "success" });
+    renderAll();
+  }
+}
+
 function saveTaskFromForm() {
   const title = ui.taskTitle.value.trim();
   if (!title) {
-    setStatusKey("statusTitleRequired");
+    showToast(getText("statusTitleRequired", state.language), { type: "error" });
     return;
   }
   if (ui.taskEnd.value <= ui.taskStart.value) {
-    setStatusKey("statusEndTimeInvalid");
+    showToast(getText("statusEndTimeInvalid", state.language), { type: "error" });
     return;
   }
 
-  const task = {
+  const task = normalizeTask({
     id: ui.taskId.value || randomId(),
     title,
     date: ui.taskDate.value,
@@ -1540,19 +1863,21 @@ function saveTaskFromForm() {
     tag: ui.taskTag.value,
     notes: ui.taskNotes.value.trim(),
     completed: ui.taskCompleted.checked
-  };
+  });
 
-  const existingIndex = state.tasks.findIndex((item) => item.id === task.id);
+  const existingIndex = state.storedTasks.findIndex((item) => item.id === task.id);
   if (existingIndex >= 0) {
-    state.tasks[existingIndex] = task;
+    state.storedTasks[existingIndex] = task;
   } else {
-    state.tasks.unshift(task);
+    state.storedTasks.unshift(task);
   }
 
-  saveTasks(state.tasks);
+  state.storedTasks = sortTasksByDateTime(state.storedTasks);
+  saveTasks(state.storedTasks);
+  invalidateTodayCache();
   closeModal();
   renderAll();
-  setStatusKey("statusTaskSaved");
+  showToast(getText("statusTaskSaved", state.language), { type: "success" });
 }
 
 function openModal(task) {
@@ -1570,92 +1895,44 @@ function openModal(task) {
     ui.taskTag.value = task.tag;
     ui.taskNotes.value = task.notes || "";
     ui.taskCompleted.checked = Boolean(task.completed);
-    ui.deleteTask.style.display = canEdit ? "inline-flex" : "none";
+    const canDelete = canEdit && task.source === "user";
+    ui.deleteTask.style.display = canDelete ? "inline-flex" : "none";
   } else {
+    const defaultTask = getDefaultTaskConfig();
     setModalTitle("modalAddTitle");
     ui.taskId.value = "";
     ui.taskTitle.value = "";
     ui.taskDate.value = formatDate(state.currentDate);
-    ui.taskStart.value = "09:00";
-    ui.taskEnd.value = "10:00";
-    ui.taskPriority.value = "med";
-    ui.taskTag.value = "studio";
+    ui.taskStart.value = defaultTask.start;
+    ui.taskEnd.value = defaultTask.end;
+    ui.taskPriority.value = defaultTask.priority;
+    ui.taskTag.value = defaultTask.tag;
     ui.taskNotes.value = "";
     ui.taskCompleted.checked = false;
     ui.deleteTask.style.display = "none";
   }
 }
 
+function deleteTaskById(taskId) {
+  if (!taskId) {
+    return;
+  }
+  const nextTasks = state.storedTasks.filter((task) => task.id !== taskId);
+  if (nextTasks.length === state.storedTasks.length) {
+    setStatusKey("statusReadOnly");
+    return;
+  }
+  state.storedTasks = nextTasks;
+  saveTasks(state.storedTasks);
+  invalidateTodayCache();
+  closeModal();
+  renderAll();
+  showToast(getText("statusTaskDeleted", state.language), { type: "success" });
+}
+
 function closeModal() {
   ui.modal.classList.remove("is-open");
   ui.modal.setAttribute("aria-hidden", "true");
-}
-
-function handleImport(event) {
-  if (state.isReadOnly) {
-    setStatusKey("statusReadOnly");
-    ui.importFile.value = "";
-    return;
-  }
-  const file = event.target.files[0];
-  if (!file) {
-    return;
-  }
-  file
-    .text()
-    .then((text) => {
-      const data = JSON.parse(text);
-      if (!data || !Array.isArray(data.tasks)) {
-        throw new Error("Invalid format");
-      }
-      state.tasks = data.tasks.map((task) => ({
-        id: task.id || randomId(),
-        title: task.title || "Untitled",
-        date: task.date || formatDate(new Date()),
-        start: task.start || "09:00",
-        end: task.end || "10:00",
-        priority: task.priority || "med",
-        tag: task.tag || "studio",
-        notes: task.notes || "",
-        completed: Boolean(task.completed)
-      }));
-      saveTasks(state.tasks);
-      renderAll();
-      setStatusKey("statusImportComplete");
-    })
-    .catch(() => {
-      setStatusKey("statusImportFailed");
-    })
-    .finally(() => {
-      ui.importFile.value = "";
-    });
-}
-
-function exportTasks() {
-  if (state.isReadOnly) {
-    setStatusKey("statusReadOnly");
-    return;
-  }
-  const payload = {
-    tasks: state.tasks
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "schedule-studio.json";
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-  setStatusKey("statusExportReady");
-}
-
-function setStatus(message) {
-  if (!ui.statusMessage) {
-    return;
-  }
-  ui.statusMessage.innerHTML = message;
 }
 
 function loadTasks() {
@@ -1672,8 +1949,13 @@ function saveTasks(tasks) {
   try {
     writeStoredTasks(tasks);
   } catch (error) {
-    setStatusKey("statusStorageUnavailable");
+    showToast(getText("statusStorageUnavailable", state.language), { type: "error" });
   }
+}
+
+function invalidateTodayCache() {
+  state.todayCacheKey = "";
+  state.todayTasks = [];
 }
 
 document.addEventListener("DOMContentLoaded", init);

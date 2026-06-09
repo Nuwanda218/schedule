@@ -66,6 +66,8 @@ Schedule/
 ├── scripts/
 │   └── check-assets.mjs
 ├── docs/
+│   ├── ideas/
+│   │   └── schedule-studio-roadmap.md
 │   └── superpowers/
 │       └── plans/
 │           └── 2026-05-27-schedule-project-split.md
@@ -95,6 +97,7 @@ Schedule/
     │   │   ├── constants.js
     │   │   └── storage.js
     │   └── modules/
+    │       ├── config.js
     │       ├── dates.js
     │       ├── i18n.js
     │       ├── quotes.js
@@ -102,6 +105,7 @@ Schedule/
     │       ├── tasks.js
     │       └── theme.js
     └── data/
+        ├── app-config.js
         ├── quotes/
         ├── schedule/
         └── theme/
@@ -114,13 +118,15 @@ Schedule/
 项目的页面入口。它负责声明页面结构，包括：
 
 - 顶部 header
-- 视图切换按钮
+- 视图切换容器
 - 侧边栏
 - 年/月/周/日视图面板
 - 添加或编辑任务的弹窗表单
 - CSS 和 JS 文件引用
 
 在这个项目中，`index.html` 不是简单的静态页面，它更像是应用骨架。JavaScript 会通过 `id`、`class`、`data-*` 属性找到页面节点，然后更新内容或绑定事件。
+
+内容配置化之后，`index.html` 里不再硬编码所有标签按钮和下拉选项。例如视图切换、标签筛选、优先级选项、任务标签选项，都由 `assets/data/app-config.js` 配置，再由 `assets/js/app.js` 渲染到页面里。
 
 常见标记含义：
 
@@ -151,7 +157,83 @@ hidden      表示当前隐藏状态
 
 一个简单的资源检查脚本。它会读取 `index.html`，检查其中引用的 CSS 和 JS 文件是否存在，也会检查 CSS 里的 `@import` 文件是否存在。
 
-这个脚本的意义是：拆分文件后，如果路径写错，可以尽早发现。
+这个脚本的意义是：拆分文件后，如果路径写错，可以尽早发现。它现在也会检查 `assets/data/app-config.js` 是否包含核心配置段，避免配置文件被误删或写残。
+
+## 内容配置化说明
+
+### `assets/data/app-config.js`
+
+这是当前项目最重要的“创作入口”。当你想调整页面内容、模块开关、默认数据时，优先看这个文件。
+
+它负责配置：
+
+```text
+brand          品牌显示内容
+defaults       默认视图、语言、主题、新任务默认值
+modules        页面模块开关
+views          顶部视图切换按钮
+tags           任务标签和筛选标签
+priorities     优先级选项
+statusFilters  状态筛选按钮
+seasons        季节主题选项
+```
+
+示例：
+
+```js
+export const APP_CONFIG = {
+  brand: {
+    mark: "Nuwanda",
+    eyebrow: "Schedule Studio",
+    taglineKey: "tagline"
+  },
+  defaults: {
+    view: "year",
+    season: "autumn",
+    language: "en",
+    newTask: {
+      start: "09:00",
+      end: "10:00",
+      priority: "med",
+      tag: "studio"
+    }
+  }
+};
+```
+
+常见修改方式：
+
+```text
+改品牌名       修改 brand.mark
+改顶部小标题   修改 brand.eyebrow
+改默认主题     修改 defaults.season
+改新任务时间   修改 defaults.newTask.start / defaults.newTask.end
+改默认标签     修改 defaults.newTask.tag
+新增任务标签   在 tags 数组里增加一项，并在 i18n.js 里补对应文案
+隐藏某个标签   把对应项 enabled 改成 false
+隐藏某个视图   把 views 里对应项 enabled 改成 false
+隐藏筛选模块   把 modules.filters 改成 false
+```
+
+注意：`labelKey` 不是直接显示在页面上的文字，而是去 `assets/js/modules/i18n.js` 里查中英文文案的 key。这样后续做中英文切换时，不需要在配置里重复写两套文案。
+
+### `assets/js/modules/config.js`
+
+配置读取模块。它不直接写页面，只负责把 `APP_CONFIG` 整理成应用需要的数据。
+
+主要职责：
+
+```text
+getConfig                 获取完整配置
+getDefaultTaskConfig      获取新增任务默认值
+getEnabledViews           获取启用的视图
+getEnabledTags            获取启用的标签
+getEnabledPriorities      获取启用的优先级
+getEnabledStatusFilters   获取启用的状态筛选
+getEnabledSeasons         获取启用的季节主题
+```
+
+这样做的好处是：以后如果配置来源从 JS 文件换成 JSON、后端接口或可视化编辑器，主应用不需要大改。
 
 ## CSS 拆分说明
 
@@ -194,9 +276,11 @@ responsive.css  响应式断点
 ```text
 header.css   顶部栏、品牌区、视图切换、设置面板
 buttons.css  通用按钮、chip、icon button、theme-button
-sidebar.css  侧边栏、面板、今日任务、进度、概览卡片
+sidebar.css  侧边栏、今日任务、年度概览、年度时间刻度
 modal.css    弹窗、表单、输入框、操作按钮
 ```
+
+当前侧边栏优先展示“今日待办”和“年度概览”。“专注筛选”模块暂时通过配置隐藏，年度概览简化为“最近事务 + 年度时间刻度”。时间刻度事件颜色复用主题文件里的 `--event-plan-1`、`--event-plan-2`、`--event-plan-3`、`--event-holiday` 和 `--event-adjustment`。
 
 ### `assets/css/views/`
 
@@ -511,6 +595,17 @@ schedule-studio-lang-v1
 schedule-studio-season-v1
 ```
 
+当前任务编辑闭环：
+
+```text
+JSON 日程数据     作为示例和初始展示数据
+localStorage      保存用户新增、编辑、导入的任务
+页面渲染          会把 JSON 数据和 localStorage 用户任务合并
+导出 JSON         导出 localStorage 中的用户任务
+```
+
+这意味着：项目自带的示例日程仍然来自 `assets/data/schedule/`，你在页面里新增或编辑的任务会保存在浏览器本地。删除按钮只删除用户自己保存的任务，不直接修改项目里的静态 JSON 示例数据。
+
 ## 学习路线建议
 
 建议按这个顺序学习：
@@ -519,33 +614,57 @@ schedule-studio-season-v1
 1. README.md
    先理解项目结构和模块职责
 
-2. package.json
+2. docs/project-structure-guide.md
+   理解内容配置化、文件职责和后续创作模式方向
+
+3. package.json
    理解 npm install、npm run dev、npm run build
 
-3. index.html
+4. assets/data/app-config.js
+   从配置中心开始理解页面内容如何生成
+
+5. index.html
    理解页面骨架、id、class、data-*、表单和弹窗
 
-4. assets/css/styles.css
+6. assets/css/styles.css
    理解 CSS 入口和 @import
 
-5. assets/css/base/
+7. assets/css/base/
    学基础样式、变量、响应式
 
-6. assets/css/components/
+8. assets/css/components/
    学组件样式如何组织
 
-7. assets/js/modules/dates.js
+9. assets/js/modules/config.js
+   理解配置读取和启用项过滤
+
+10. assets/js/modules/dates.js
    从最简单的纯函数开始学 JS 模块
 
-8. assets/js/core/storage.js
+11. assets/js/core/storage.js
    学 localStorage 和 JSON
 
-9. assets/js/modules/scheduleData.js
+12. assets/js/modules/scheduleData.js
    学 fetch、async/await 和数据规范化
 
-10. assets/js/app.js
+13. assets/js/app.js
     最后看主应用，因为它串起了所有模块
 ```
+
+## 界面美化节奏
+
+建议不要把界面美化全部放到最后，也不要在核心逻辑没稳定时大规模美化。
+
+当前节奏：
+
+```text
+1. 先打通任务增删改查和保存
+2. 做小范围可用性美化，比如按钮状态、空状态、表单易用性
+3. 再做智能添加、天气等功能
+4. 最后做完整视觉打磨和动效统一
+```
+
+原因是：日程工具的核心价值是稳定记录和查看任务。视觉可以帮助使用，但不能替代可靠的任务编辑闭环。
 
 ## 为什么不一次性把 `app.js` 全拆完
 
@@ -619,6 +738,9 @@ JS 已抽出核心工具模块
 Vite 已接入
 资源检查脚本已接入
 README 已更新为中文说明
+内容配置中心已接入
+详细文件结构指南已新增
+侧边栏已调整为今日待办 + 年度时间刻度
 ```
 
 当前验证命令：

@@ -1,6 +1,6 @@
 .site-header {
   display: grid;
-  grid-template-columns: minmax(240px, 1.3fr) minmax(360px, 1fr) auto;
+  grid-template-columns: minmax(200px, auto) 1fr auto;
   gap: 24px;
   align-items: center;
   padding: 32px clamp(24px, 4vw, 56px) 16px;
@@ -41,34 +41,7 @@
   color: var(--muted);
 }
 
-.view-switch {
-  background: var(--view-switch-bg);
-  border: 1px solid var(--line);
-  padding: 6px;
-  border-radius: 999px;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-  box-shadow: var(--shadow);
-}
-
-.view-btn {
-  border: none;
-  border-radius: 999px;
-  padding: 10px 14px;
-  font-weight: 600;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.view-btn.is-active,
-.view-btn:hover {
-  background: var(--accent);
-  color: var(--text-on-accent);
-  box-shadow: var(--view-btn-active-shadow);
-}
+/* Zoom nav styles are in zoom-nav.css */
 
 .header-actions {
   display: flex;

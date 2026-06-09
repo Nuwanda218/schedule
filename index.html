@@ -42,17 +42,23 @@
     </div>
     <header class="site-header reveal" style="--delay: 0.05s">
       <div class="brand">
-        <div class="brand-mark" aria-hidden="true">&#9889;Nuwanda</div>
+        <div class="brand-mark" id="brandMark" aria-hidden="true">&#9889;Nuwanda</div>
         <div class="brand-copy">
-          <p class="eyebrow">Schedule Studio</p>
+          <p class="eyebrow" id="brandEyebrow">Schedule Studio</p>
           <h1 data-i18n="tagline">Plan the year, move the day</h1>
         </div>
       </div>
-      <nav class="view-switch" aria-label="View switcher">
-        <button class="view-btn is-active" data-view="year" data-i18n="viewYear" type="button">Year</button>
-        <button class="view-btn" data-view="month" data-i18n="viewMonth" type="button">Month</button>
-        <button class="view-btn" data-view="week" data-i18n="viewWeek" type="button">Week</button>
-        <button class="view-btn" data-view="day" data-i18n="viewDay" type="button">Day</button>
+      <nav class="zoom-nav" id="zoomNav" aria-label="Time zoom navigation">
+        <div class="zoom-breadcrumb" id="zoomBreadcrumb" aria-label="Current time path"></div>
+        <div class="zoom-slider-row">
+          <input type="range" class="zoom-slider" id="zoomSlider" min="0" max="3" step="1" value="0" aria-label="Zoom level">
+          <div class="zoom-labels">
+            <span data-zoom="0" data-i18n="viewYear">Year</span>
+            <span data-zoom="1" data-i18n="viewMonth">Month</span>
+            <span data-zoom="2" data-i18n="viewWeek">Week</span>
+            <span data-zoom="3" data-i18n="viewDay">Day</span>
+          </div>
+        </div>
       </nav>
       <div class="header-actions">
         <button class="btn ghost" data-action="today" data-i18n="today" type="button">Today</button>
@@ -62,24 +68,6 @@
 
     <main class="layout">
       <aside class="sidebar reveal" style="--delay: 0.1s">
-        <section class="panel">
-          <h2 data-i18n="focusFilters">Focus Filters</h2>
-          <p class="panel-note" data-i18n="filterNote">Filter by tag and status for a lighter view.</p>
-          <div class="chip-row" data-filter-group="tag">
-            <button class="chip is-active" data-filter-value="all" data-i18n="all" type="button">All</button>
-            <button class="chip" data-filter-value="studio" data-i18n="tagStudio" type="button">Studio</button>
-            <button class="chip" data-filter-value="admin" data-i18n="tagAdmin" type="button">Admin</button>
-            <button class="chip" data-filter-value="health" data-i18n="tagHealth" type="button">Health</button>
-            <button class="chip" data-filter-value="learning" data-i18n="tagLearning" type="button">Learning</button>
-            <button class="chip" data-filter-value="travel" data-i18n="tagTravel" type="button">Travel</button>
-          </div>
-          <div class="chip-row" data-filter-group="status">
-            <button class="chip is-active" data-filter-value="all" data-i18n="all" type="button">All</button>
-            <button class="chip" data-filter-value="open" data-i18n="statusOpen" type="button">Open</button>
-            <button class="chip" data-filter-value="done" data-i18n="statusDone" type="button">Done</button>
-          </div>
-        </section>
-
         <section class="panel today-panel">
           <div class="panel-header">
             <h2 data-i18n="todayTasks">Today's Tasks</h2>
@@ -102,38 +90,34 @@
             <span class="badge" id="yearProgressBadge">-</span>
           </div>
           <div class="year-overview">
+            <div class="recent-item">
+              <div class="overview-label" data-i18n="recentItem">Recent item</div>
+              <div class="overview-title" id="recentItemTitle">-</div>
+              <div class="overview-meta" id="recentItemMeta">-</div>
+            </div>
             <div class="year-progress">
               <div class="year-progress-row">
                 <span class="year-progress-label" data-i18n="yearProgress">Year progress</span>
                 <span class="year-progress-value" id="yearProgressValue">0%</span>
               </div>
-              <div class="progress-bar">
-                <div class="progress-bar-fill" id="yearProgressFill"></div>
-              </div>
-            </div>
-            <div class="overview-grid">
-              <div class="overview-card">
-                <div class="overview-label" data-i18n="nextHoliday">Next holiday</div>
-                <div class="overview-title" id="nextHolidayTitle">-</div>
-                <div class="overview-meta" id="nextHolidayMeta">-</div>
-              </div>
-              <div class="overview-card">
-                <div class="overview-label" data-i18n="nextPlan">Next plan</div>
-                <div class="overview-title" id="nextPlanTitle">-</div>
-                <div class="overview-meta" id="nextPlanMeta">-</div>
+              <div class="year-timeline" id="yearTimeline">
+                <div class="year-timeline-track">
+                  <div class="year-timeline-progress" id="yearTimelineProgress"></div>
+                  <div class="year-timeline-now" id="yearTimelineNow" aria-hidden="true"></div>
+                  <div class="year-timeline-events" id="yearTimelineEvents"></div>
+                </div>
               </div>
             </div>
           </div>
-          <p class="status-message" id="statusMessage">Ready.</p>
         </section>
       </aside>
 
       <section class="content reveal" style="--delay: 0.15s">
         <div class="content-header">
           <div class="range-controls">
-            <button class="icon-btn" data-shift="-1" data-i18n="prev" type="button" aria-label="Previous range">Prev</button>
+            <button class="icon-btn" data-shift="-1" data-i18n="prev" type="button" aria-label="Previous range">&#9664;</button>
             <div class="range-label" id="rangeLabel">-</div>
-            <button class="icon-btn" data-shift="1" data-i18n="next" type="button" aria-label="Next range">Next</button>
+            <button class="icon-btn" data-shift="1" data-i18n="next" type="button" aria-label="Next range">&#9654;</button>
           </div>
           <div class="legend">
             <span class="legend-item priority-high" data-i18n="priorityHigh">High</span>
@@ -145,12 +129,8 @@
         <div class="views">
           <section class="view-panel is-active" data-view-panel="year">
             <div class="panel-header year-header">
-              <div>
-                <h2 data-i18n="yearOverview">Year Overview</h2>
-                <p class="panel-note" data-i18n="yearNote">Tap a month to focus on its calendar.</p>
-              </div>
+              <h2 data-i18n="yearOverview">Year Overview</h2>
               <div class="year-header-actions">
-                <span class="badge" data-i18n="monthsBadge">12 months</span>
                 <div class="year-toggle" role="tablist" aria-label="Year view mode">
                   <button class="icon-btn is-active" data-year-view="cards" data-i18n="yearViewCards" type="button">Cards</button>
                   <button class="icon-btn" data-year-view="heatmap" data-i18n="yearViewHeatmap" type="button">Heatmap</button>
@@ -173,33 +153,21 @@
 
           <section class="view-panel" data-view-panel="month">
             <div class="panel-header">
-              <div>
-                <h2 data-i18n="monthMap">Month Map</h2>
-                <p class="panel-note" data-i18n="monthNote">Heat blocks show how full each day is.</p>
-              </div>
-              <span class="badge" data-i18n="calendarBadge">Calendar</span>
+              <h2 data-i18n="monthMap">Month Map</h2>
             </div>
             <div class="month-grid" id="monthGrid"></div>
           </section>
 
           <section class="view-panel" data-view-panel="week">
             <div class="panel-header">
-              <div>
-                <h2 data-i18n="weekFlow">Week Flow</h2>
-                <p class="panel-note" data-i18n="weekNote">Drag is not wired yet, but blocks show time.</p>
-              </div>
-              <span class="badge" data-i18n="weekBadge">7 days</span>
+              <h2 data-i18n="weekFlow">Week Flow</h2>
             </div>
             <div class="schedule-grid week-grid" id="weekGrid"></div>
           </section>
 
           <section class="view-panel" data-view-panel="day">
             <div class="panel-header">
-              <div>
-                <h2 data-i18n="dayFocus">Day Focus</h2>
-                <p class="panel-note" data-i18n="dayNote">Log details and completion in the task editor.</p>
-              </div>
-              <span class="badge" data-i18n="timelineBadge">Timeline</span>
+              <h2 data-i18n="dayFocus">Day Focus</h2>
             </div>
             <div class="schedule-grid day-grid" id="dayGrid"></div>
           </section>
@@ -207,9 +175,6 @@
       </section>
     </main>
 
-    <footer class="site-footer">
-      <p data-i18n="footerNote">Schedule Studio prototype. Data is stored in your browser.</p>
-    </footer>
 
     <div class="modal" id="taskModal" aria-hidden="true">
       <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -238,21 +203,11 @@
             </label>
             <label class="field">
               <span data-i18n="fieldPriority">Priority</span>
-              <select id="taskPriority" name="priority">
-                <option value="high" data-i18n-option="priorityHigh">High</option>
-                <option value="med" data-i18n-option="priorityMed" selected>Medium</option>
-                <option value="low" data-i18n-option="priorityLow">Low</option>
-              </select>
+              <select id="taskPriority" name="priority"></select>
             </label>
             <label class="field">
               <span data-i18n="fieldTag">Tag</span>
-              <select id="taskTag" name="tag">
-                <option value="studio" data-i18n-option="tagStudio">Studio</option>
-                <option value="admin" data-i18n-option="tagAdmin">Admin</option>
-                <option value="health" data-i18n-option="tagHealth">Health</option>
-                <option value="learning" data-i18n-option="tagLearning">Learning</option>
-                <option value="travel" data-i18n-option="tagTravel">Travel</option>
-              </select>
+              <select id="taskTag" name="tag"></select>
             </label>
             <label class="field field-wide">
               <span data-i18n="fieldNotes">Notes</span>

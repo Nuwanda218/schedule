@@ -62,10 +62,49 @@ if (!exists('index.html')) {
       }
     }
   }
+
+  for (const requiredId of ['recentItemTitle', 'recentItemMeta', 'yearTimeline', 'yearTimelineProgress', 'yearTimelineNow', 'yearTimelineEvents']) {
+    if (!html.includes(`id="${requiredId}"`)) {
+      errors.push(`Missing sidebar overview element: ${requiredId}`);
+    }
+  }
 }
 
 if (exists('assets/js/app.js') && /\bfetchJson\b/.test(read('assets/js/app.js'))) {
   errors.push('app.js should not call fetchJson directly; use a data module instead.');
+}
+
+if (exists('assets/js/app.js')) {
+  const appSource = read('assets/js/app.js');
+  if (!/\bdeleteTaskById\b/.test(appSource)) {
+    errors.push('Missing task delete handler: deleteTaskById');
+  }
+  if (!/isReadOnly:\s*false/.test(appSource)) {
+    errors.push('App should be editable by default for task CRUD.');
+  }
+}
+
+if (!exists('assets/js/modules/html.js')) {
+  errors.push('Missing HTML escaping module: assets/js/modules/html.js');
+} else if (!/\bescapeHtml\b/.test(read('assets/js/modules/html.js'))) {
+  errors.push('Missing escapeHtml helper in assets/js/modules/html.js');
+}
+
+if (exists('assets/data/app-config.js')) {
+  const configSource = read('assets/data/app-config.js');
+  const requiredCollections = ['views', 'tags', 'priorities', 'statusFilters', 'seasons'];
+
+  for (const collection of requiredCollections) {
+    if (!new RegExp(`${collection}\\s*:`).test(configSource)) {
+      errors.push(`Missing app config collection: ${collection}`);
+    }
+  }
+
+  for (const field of ['brand', 'defaults', 'modules']) {
+    if (!new RegExp(`${field}\\s*:`).test(configSource)) {
+      errors.push(`Missing app config section: ${field}`);
+    }
+  }
 }
 
 if (errors.length) {
